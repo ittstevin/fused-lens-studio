@@ -1,0 +1,244 @@
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 0 var(--container-padding);
+  transition: all var(--transition-smooth);
+}
+
+.nav--scrolled {
+  background: rgba(250, 250, 250, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+}
+
+.nav--dark {
+  color: var(--color-white);
+}
+
+.nav--light {
+  color: var(--color-charcoal);
+}
+
+.nav--dark.nav--scrolled {
+  color: var(--color-charcoal);
+}
+
+.nav__container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  height: var(--header-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Logo */
+.nav__logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  z-index: 10;
+}
+
+.nav__logo-icon {
+  font-size: 1.5rem;
+  color: var(--color-accent);
+}
+
+.nav__logo-text {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .nav__logo-text {
+    display: inline;
+  }
+}
+
+/* Nav Links */
+.nav__links {
+  display: none;
+  align-items: center;
+  gap: var(--space-xl);
+}
+
+@media (min-width: 1024px) {
+  .nav__links {
+    display: flex;
+  }
+}
+
+.nav__link {
+  position: relative;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: var(--space-sm) 0;
+  transition: opacity var(--transition-fast);
+}
+
+.nav__link:hover {
+  opacity: 0.7;
+}
+
+.nav__link-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: currentColor;
+}
+
+/* CTA Button */
+.nav__cta {
+  display: none;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border: 1px solid currentColor;
+  background: transparent;
+  color: inherit;
+  transition: all var(--transition-smooth);
+}
+
+.nav__cta:hover {
+  background: var(--color-charcoal);
+  color: var(--color-white);
+  border-color: var(--color-charcoal);
+}
+
+.nav--dark .nav__cta:hover {
+  background: var(--color-white);
+  color: var(--color-charcoal);
+  border-color: var(--color-white);
+}
+
+.nav--dark.nav--scrolled .nav__cta:hover {
+  background: var(--color-charcoal);
+  color: var(--color-white);
+  border-color: var(--color-charcoal);
+}
+
+@media (min-width: 768px) {
+  .nav__cta {
+    display: block;
+  }
+}
+
+/* Mobile Toggle */
+.nav__mobile-toggle {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.nav__mobile-toggle span {
+  display: block;
+  width: 100%;
+  height: 1.5px;
+  background: currentColor;
+  transition: all var(--transition-smooth);
+  transform-origin: center;
+}
+
+.nav__mobile-toggle--open span:nth-child(1) {
+  transform: translateY(7.5px) rotate(45deg);
+}
+
+.nav__mobile-toggle--open span:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.nav__mobile-toggle--open span:nth-child(3) {
+  transform: translateY(-7.5px) rotate(-45deg);
+}
+
+@media (min-width: 1024px) {
+  .nav__mobile-toggle {
+    display: none;
+  }
+}
+
+/* Progress Bar */
+.nav__progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-accent);
+  transform-origin: left;
+}
+
+/* Mobile Menu */
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: var(--color-charcoal);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--space-2xl) var(--container-padding);
+}
+
+.mobile-menu__nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.mobile-menu__link {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-md);
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 8vw, 3.5rem);
+  color: var(--color-white);
+  transition: color var(--transition-fast);
+}
+
+.mobile-menu__link:hover {
+  color: var(--color-accent);
+}
+
+.mobile-menu__link-number {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: var(--color-ash);
+}
+
+.mobile-menu__footer {
+  margin-top: auto;
+  padding-top: var(--space-xl);
+  border-top: 1px solid var(--color-graphite);
+}
+
+.mobile-menu__footer p {
+  font-size: 0.875rem;
+  color: var(--color-silver);
+  margin-bottom: var(--space-sm);
+}
+

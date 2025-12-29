@@ -1,0 +1,346 @@
+.hero {
+  position: relative;
+  height: 100vh;
+  min-height: 700px;
+  width: 100%;
+  overflow: hidden;
+  background: var(--color-black);
+}
+
+/* Slides Container */
+.hero__slides {
+  position: absolute;
+  inset: 0;
+}
+
+.hero__slide {
+  position: absolute;
+  inset: 0;
+}
+
+.hero__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  will-change: transform;
+}
+
+/* Overlays */
+.hero__overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hero__overlay--gradient {
+  background: linear-gradient(
+    to bottom,
+    rgba(10, 10, 10, 0.4) 0%,
+    rgba(10, 10, 10, 0.1) 40%,
+    rgba(10, 10, 10, 0.5) 70%,
+    rgba(10, 10, 10, 0.9) 100%
+  );
+}
+
+.hero__overlay--vignette {
+  background: radial-gradient(
+    ellipse at center,
+    transparent 0%,
+    rgba(10, 10, 10, 0.4) 100%
+  );
+}
+
+/* Content */
+.hero__content {
+  position: relative;
+  height: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--container-padding);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-bottom: 12vh;
+}
+
+.hero__text {
+  max-width: 800px;
+}
+
+/* Studio Name */
+.hero__studio-name {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-pearl);
+  margin-bottom: var(--space-lg);
+}
+
+.hero__studio-icon {
+  color: var(--color-accent);
+  font-size: 1.25rem;
+}
+
+/* Tagline - Main "Timeless Memories" */
+.hero__tagline {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-weight: 300;
+  font-style: italic;
+  color: var(--color-accent);
+  line-height: 1.2;
+  margin-bottom: var(--space-lg);
+  letter-spacing: 0.02em;
+}
+
+.hero__title-wrapper {
+  position: relative;
+  min-height: 100px;
+  margin-bottom: var(--space-lg);
+}
+
+.hero__title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 4rem);
+  font-weight: 400;
+  color: var(--color-white);
+  line-height: 1.1;
+}
+
+.hero__title-line {
+  display: block;
+  overflow: hidden;
+}
+
+.hero__title-line--accent {
+  color: var(--color-accent-light);
+  font-style: italic;
+  font-weight: 300;
+}
+
+.hero__description {
+  font-size: 1.125rem;
+  color: var(--color-pearl);
+  max-width: 500px;
+  margin-bottom: var(--space-xl);
+  line-height: 1.7;
+}
+
+/* Actions */
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.hero__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.125rem 2.5rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  transition: all var(--transition-smooth);
+  cursor: pointer;
+}
+
+.hero__btn--primary {
+  background: var(--color-white);
+  color: var(--color-charcoal);
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero__btn--primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform var(--transition-smooth);
+}
+
+.hero__btn--primary:hover::before {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.hero__btn--primary:hover {
+  color: var(--color-white);
+}
+
+.hero__btn--primary span {
+  position: relative;
+  z-index: 1;
+}
+
+.hero__btn--outline {
+  background: transparent;
+  color: var(--color-white);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.hero__btn--outline:hover {
+  border-color: var(--color-white);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Indicators */
+.hero__indicators {
+  position: absolute;
+  right: var(--container-padding);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.hero__indicator {
+  width: 3px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: background var(--transition-fast);
+}
+
+.hero__indicator:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.hero__indicator-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--color-accent);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform var(--transition-smooth);
+}
+
+.hero__indicator--active .hero__indicator-fill {
+  animation: indicatorFill 6s linear forwards;
+}
+
+@keyframes indicatorFill {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+/* Scroll Indicator */
+.hero__scroll {
+  position: absolute;
+  bottom: var(--space-xl);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity var(--transition-fast);
+}
+
+.hero__scroll:hover {
+  opacity: 1;
+}
+
+.hero__scroll-text {
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-white);
+}
+
+.hero__scroll-line {
+  width: 1px;
+  height: 40px;
+  background: var(--color-white);
+  transform-origin: top;
+}
+
+/* Decorative Corners */
+.hero__decorative {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hero__corner {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border: 1px solid rgba(201, 169, 98, 0.3);
+}
+
+.hero__corner--tl {
+  top: var(--space-2xl);
+  left: var(--container-padding);
+  border-right: none;
+  border-bottom: none;
+}
+
+.hero__corner--br {
+  bottom: var(--space-2xl);
+  right: var(--container-padding);
+  border-left: none;
+  border-top: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero__content {
+    padding-bottom: 15vh;
+  }
+
+  .hero__tagline {
+    font-size: clamp(2rem, 10vw, 3rem);
+  }
+
+  .hero__title-wrapper {
+    min-height: 80px;
+  }
+
+  .hero__indicators {
+    right: var(--space-md);
+  }
+
+  .hero__indicator {
+    height: 30px;
+  }
+
+  .hero__corner {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero__actions {
+    flex-direction: column;
+  }
+
+  .hero__btn {
+    width: 100%;
+    text-align: center;
+  }
+}
