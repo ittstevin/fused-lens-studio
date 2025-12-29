@@ -11,17 +11,33 @@
     "whatsapp": "+254720593380"
   },
   "social": {
-    "instagram": "https://instagram.com/fusedlensstudio",
+    "instagram": "https://instagram.com/fusedlens",
     "twitter": "https://twitter.com/fusedlens",
     "behance": "https://behance.net/fusedlens",
     "linkedin": "https://linkedin.com/company/fusedlens"
   },
   "mission": "At Fused Lens Studio, we believe photography is more than capturing images—it's about freezing emotions, preserving stories, and creating art that resonates across generations. Our passion lies in the details: the subtle glance, the fleeting smile, the perfect light. We blend technical mastery with artistic vision to deliver photographs that aren't just seen, but felt.",
   "stats": [
-    { "value": 750, "suffix": "+", "label": "Projects Completed" },
-    { "value": 500, "suffix": "+", "label": "Happy Clients" },
-    { "value": 15, "suffix": "", "label": "Awards Won" },
-    { "value": 25, "suffix": "+", "label": "Countries Served" }
+    {
+      "value": 750,
+      "suffix": "+",
+      "label": "Projects Completed"
+    },
+    {
+      "value": 500,
+      "suffix": "+",
+      "label": "Happy Clients"
+    },
+    {
+      "value": 15,
+      "suffix": "",
+      "label": "Awards Won"
+    },
+    {
+      "value": 25,
+      "suffix": "+",
+      "label": "Countries Served"
+    }
   ],
   "services": [
     {
@@ -29,28 +45,48 @@
       "title": "Wedding Photography",
       "description": "Capturing your love story with cinematic elegance. Every moment, every emotion, preserved forever.",
       "icon": "wedding",
-      "features": ["Full Day Coverage", "Engagement Session", "Premium Album", "Highlight Film"]
+      "features": [
+        "Full Day Coverage",
+        "Engagement Session",
+        "Premium Album",
+        "Highlight Film"
+      ]
     },
     {
       "id": 2,
       "title": "Portrait Sessions",
       "description": "Revealing your authentic beauty through artistic vision and masterful lighting.",
       "icon": "portrait",
-      "features": ["Professional Studio", "Multiple Looks", "Retouching Included", "Digital Gallery"]
+      "features": [
+        "Professional Studio",
+        "Multiple Looks",
+        "Retouching Included",
+        "Digital Gallery"
+      ]
     },
     {
       "id": 3,
       "title": "Commercial Projects",
       "description": "Elevating brands with stunning imagery that speaks volumes and drives results.",
       "icon": "commercial",
-      "features": ["Product Photography", "Brand Campaigns", "Lifestyle Shoots", "Social Content"]
+      "features": [
+        "Product Photography",
+        "Brand Campaigns",
+        "Lifestyle Shoots",
+        "Social Content"
+      ]
     },
     {
       "id": 4,
       "title": "Event Coverage",
       "description": "Documenting special occasions with discretion and an eye for unforgettable moments.",
       "icon": "event",
-      "features": ["Corporate Events", "Private Parties", "Same-Day Edits", "Photo Booth"]
+      "features": [
+        "Corporate Events",
+        "Private Parties",
+        "Same-Day Edits",
+        "Photo Booth"
+      ]
     }
   ],
   "testimonials": [
