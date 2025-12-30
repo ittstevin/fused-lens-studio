@@ -5,7 +5,7 @@ export const studioInfo = {
   founded: 2018,
   location: 'Kirigiti, Kiambu, Kenya',
   address: 'Kirigiti, Kiambu County',
-  email: 'hello@fusedlens.studio',
+  email: 'fusedlensstudios@gmail.com',
   phone: '+254 720 593 380',
   whatsapp: '+254720593380',
   social: {

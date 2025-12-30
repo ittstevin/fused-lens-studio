@@ -55,31 +55,6 @@ export function Contact() {
   const [focusedField, setFocusedField] = useState(null)
   
   const sectionRef = useRef(null)
-  const mapPinRef = useRef(null)
-
-  // Animated map pin
-  useEffect(() => {
-    if (mapPinRef.current) {
-      gsap.fromTo(mapPinRef.current,
-        { y: -50, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.8,
-          ease: 'bounce.out',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 60%',
-            toggleActions: 'play none none reverse'
-          }
-        }
-      )
-    }
-
-    return () => {
-      ScrollTrigger.getAll().forEach(st => st.kill())
-    }
-  }, [])
 
   const validateForm = () => {
     const newErrors = {}
@@ -117,20 +92,35 @@ export function Contact() {
     if (!validateForm()) return
     
     setIsSubmitting(true)
+    setSubmitStatus(null)
+    setErrors({})
     
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    
-    const success = Math.random() > 0.1
-    
-    setIsSubmitting(false)
-    setSubmitStatus(success ? 'success' : 'error')
-    
-    if (success) {
-      setFormData({ name: '', email: '', phone: '', service: '', message: '' })
+    try {
+      const response = await fetch('http://localhost:3001/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+      
+      const data = await response.json()
+      
+      if (response.ok) {
+        setSubmitStatus('success')
+        setFormData({ name: '', email: '', phone: '', service: '', message: '' })
+      } else {
+        setSubmitStatus('error')
+        setErrors({ submit: data.error || 'Failed to submit form' })
+      }
+    } catch (error) {
+      console.error('Submission error:', error)
+      setSubmitStatus('error')
+      setErrors({ submit: 'Network error. Please try again.' })
+    } finally {
+      setIsSubmitting(false)
+      setTimeout(() => setSubmitStatus(null), 5000)
     }
-    
-    setTimeout(() => setSubmitStatus(null), 5000)
   }
 
   const containerVariants = {
@@ -172,20 +162,19 @@ export function Contact() {
             whileInView="visible"
             viewport={{ once: true }}
           >
-            {/* Map Visual */}
+            {/* Map */}
             <motion.div className="contact__map" variants={itemVariants}>
               <div className="contact__map-visual">
-                <div className="contact__map-grid" />
-                <div className="contact__map-pin" ref={mapPinRef}>
-                  <svg viewBox="0 0 24 32" fill="currentColor">
-                    <path d="M12 0C5.373 0 0 5.373 0 12c0 9 12 20 12 20s12-11 12-20c0-6.627-5.373-12-12-12zm0 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z" />
-                  </svg>
-                  <motion.div
-                    className="contact__map-pulse"
-                    animate={{ scale: [1, 2, 1], opacity: [0.5, 0, 0.5] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  />
-                </div>
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.819!2d36.783!3d-1.283!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f1172b28c0c5%3A0x3e2a010c9d118e0!2sKirigiti%2C%20Kenya!5e0!3m2!1sen!2sus!4v1690000000000!5m2!1sen!2sus"
+                  width="100%"
+                  height="300"
+                  style={{ border: 0, borderRadius: '8px' }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Fused Lens Studio Location"
+                ></iframe>
               </div>
               <div className="contact__location">
                 <h3>{studioInfo.location}</h3>
@@ -438,6 +427,22 @@ export function Contact() {
                 transition={{ duration: 2, repeat: Infinity }}
               />
             </motion.button>
+
+            {/* Submit Error */}
+            <AnimatePresence>
+              {errors.submit && (
+                <motion.div
+                  className="form-status form-status--error"
+                  initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -20, scale: 0.9 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                >
+                  <span className="form-status__icon">✕</span>
+                  <span>{errors.submit}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Success/Error Messages */}
             <AnimatePresence>

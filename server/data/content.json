@@ -92,24 +92,27 @@
   "testimonials": [
     {
       "id": 1,
-      "quote": "Fused Lens captured our wedding with such artistry. Every photo tells our love story beautifully.",
-      "author": "Sarah & Michael",
-      "role": "Wedding Clients",
-      "image": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80"
+      "name": "Sarah Johnson",
+      "role": "Bride",
+      "content": "Fused Lens Studio captured our wedding day perfectly. Every photo tells a story, and we couldn't be happier with the results.",
+      "rating": 5,
+      "image": "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&q=90"
     },
     {
       "id": 2,
-      "quote": "The product shots transformed our brand. Sales increased 40% after the campaign launched.",
-      "author": "James Chen",
-      "role": "CEO, Minimal Goods",
-      "image": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80"
+      "name": "Michael Chen",
+      "role": "Corporate Client",
+      "content": "Professional, creative, and reliable. Their commercial photography exceeded our expectations for our brand campaign.",
+      "rating": 5,
+      "image": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&q=90"
     },
     {
       "id": 3,
-      "quote": "Professional, creative, and incredibly talented. The portraits exceeded all expectations.",
-      "author": "Emma Rodriguez",
-      "role": "Fashion Designer",
-      "image": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80"
+      "name": "Emma Rodriguez",
+      "role": "Portrait Client",
+      "content": "The attention to detail and artistic vision is incredible. My portraits are absolutely stunning.",
+      "rating": 5,
+      "image": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&q=90"
     }
   ],
   "heroSlides": [
@@ -137,5 +140,40 @@
       "title": "Love",
       "subtitle": "Captured Forever"
     }
-  ]
+  ],
+  "collaborators": [
+    {
+      "id": 1,
+      "name": "Jane Doe",
+      "role": "Lead Photographer",
+      "bio": "With over 10 years of experience, Jane specializes in wedding and portrait photography.",
+      "image": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&q=90",
+      "social": {
+        "instagram": "https://instagram.com/janedoe",
+        "linkedin": "https://linkedin.com/in/janedoe"
+      }
+    },
+    {
+      "id": 2,
+      "name": "John Smith",
+      "role": "Video Specialist",
+      "bio": "John brings stories to life through cinematic videography and editing.",
+      "image": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&q=90",
+      "social": {
+        "instagram": "https://instagram.com/johnsmith",
+        "behance": "https://behance.net/johnsmith"
+      }
+    }
+  ],
+  "about": {
+    "title": "About Fused Lens Studio",
+    "content": "Founded in 2018, Fused Lens Studio has been at the forefront of creative photography, blending traditional techniques with modern innovation. Our team of passionate photographers and videographers work tirelessly to capture the essence of every moment, creating timeless memories that last a lifetime.",
+    "story": "What started as a small passion project has grown into a full-service creative studio serving clients across Kenya and beyond. We believe in the power of visual storytelling and the impact it has on connecting people, preserving memories, and building brands.",
+    "values": [
+      "Excellence in every frame",
+      "Authentic storytelling",
+      "Client-centered approach",
+      "Continuous innovation"
+    ]
+  }
 }

@@ -1,18 +1,27 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { aboutImage } from '../../data/images'
-import { studioInfo, timeline, stats, missionStatement } from '../../data/content'
+import { studioInfo, timeline, stats } from '../../data/content'
 import { AnimatedCounter } from '../Effects'
 import './About.css'
 
 gsap.registerPlugin(ScrollTrigger)
 
 export function About() {
+  const [about, setAbout] = useState(null)
   const sectionRef = useRef(null)
   const imageRef = useRef(null)
   const milestoneRefs = useRef([])
+
+  useEffect(() => {
+    // Fetch about content
+    fetch('/api/content/about')
+      .then(res => res.json())
+      .then(data => setAbout(data))
+      .catch(err => console.error('Failed to load about:', err))
+  }, [])
 
   // Parallax effect on image
   useEffect(() => {
@@ -129,16 +138,15 @@ export function About() {
             </motion.span>
             
             <motion.h2 className="about__title" variants={itemVariants}>
-              Crafting Visual <br />
-              <span className="text-accent">Masterpieces</span>
+              {about?.title || 'Crafting Visual Masterpieces'}
             </motion.h2>
             
             <motion.p className="about__lead" variants={itemVariants}>
-              At {studioInfo.name}, we believe every photograph should tell a story that resonates deeply with those who view it.
+              {about?.content || `At ${studioInfo.name}, we believe every photograph should tell a story that resonates deeply with those who view it.`}
             </motion.p>
             
             <motion.p className="about__text" variants={itemVariants}>
-              {missionStatement}
+              {about?.story || 'Loading...'}
             </motion.p>
 
             {/* Animated Stats */}

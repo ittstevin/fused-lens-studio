@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { services, testimonials } from '../../data/content'
+import { services } from '../../data/content'
 import './Services.css'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -46,8 +46,17 @@ const ServiceIcon = ({ type }) => {
 export function Services() {
   const [flippedCard, setFlippedCard] = useState(null)
   const [activeTestimonial, setActiveTestimonial] = useState(0)
+  const [testimonials, setTestimonials] = useState([])
   const sectionRef = useRef(null)
   const cardRefs = useRef([])
+
+  useEffect(() => {
+    // Fetch testimonials
+    fetch('/api/content/testimonials')
+      .then(res => res.json())
+      .then(data => setTestimonials(data))
+      .catch(err => console.error('Failed to load testimonials:', err))
+  }, [])
 
   // Staggered card animation
   useEffect(() => {
@@ -175,17 +184,17 @@ export function Services() {
                 transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
               >
                 <blockquote className="testimonial__quote">
-                  "{testimonials[activeTestimonial].quote}"
+                  "{testimonials[activeTestimonial]?.content}"
                 </blockquote>
                 <div className="testimonial__author">
                   <img
-                    src={testimonials[activeTestimonial].image}
-                    alt={testimonials[activeTestimonial].author}
+                    src={testimonials[activeTestimonial]?.image}
+                    alt={testimonials[activeTestimonial]?.name}
                     className="testimonial__avatar"
                   />
                   <div className="testimonial__info">
-                    <span className="testimonial__name">{testimonials[activeTestimonial].author}</span>
-                    <span className="testimonial__role">{testimonials[activeTestimonial].role}</span>
+                    <span className="testimonial__name">{testimonials[activeTestimonial]?.name}</span>
+                    <span className="testimonial__role">{testimonials[activeTestimonial]?.role}</span>
                   </div>
                 </div>
               </motion.div>

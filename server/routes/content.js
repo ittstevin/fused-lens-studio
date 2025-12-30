@@ -155,6 +155,48 @@ router.put('/testimonials', authenticateToken, (req, res) => {
   }
 })
 
+// Get/Update collaborators
+router.get('/collaborators', (req, res) => {
+  try {
+    const content = readContent()
+    res.json(content.collaborators)
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to load collaborators' })
+  }
+})
+
+router.put('/collaborators', authenticateToken, (req, res) => {
+  try {
+    const content = readContent()
+    content.collaborators = req.body.collaborators
+    writeContent(content)
+    res.json(content.collaborators)
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update collaborators' })
+  }
+})
+
+// Get/Update about
+router.get('/about', (req, res) => {
+  try {
+    const content = readContent()
+    res.json(content.about)
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to load about' })
+  }
+})
+
+router.put('/about', authenticateToken, (req, res) => {
+  try {
+    const content = readContent()
+    content.about = req.body.about
+    writeContent(content)
+    res.json(content.about)
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update about' })
+  }
+})
+
 // Get/Update stats
 router.get('/stats', (req, res) => {
   try {
