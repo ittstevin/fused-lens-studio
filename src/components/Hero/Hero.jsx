@@ -1,59 +1,61 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import gsap from 'gsap'
-import { heroSlides } from '../../data/images'
-import { studioInfo } from '../../data/content'
+import { studioInfo as defaultStudioInfo } from '../../data/content'
 import './Hero.css'
 
+const API_URL = import.meta.env.DEV ? '/api' : 'http://localhost:3001/api'
+
 export function Hero() {
+  // Initialize with default data immediately
   const [currentSlide, setCurrentSlide] = useState(0)
-  const [isLoaded, setIsLoaded] = useState(false)
+  const [isLoaded, setIsLoaded] = useState(true)
+  const [heroSlides, setHeroSlides] = useState([
+    { id: 1, image: 'https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=1920&q=90', title: 'Timeless', subtitle: 'Memories' },
+    { id: 2, image: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=1920&q=90', title: 'Your Story', subtitle: 'Beautifully Told' }
+  ])
+  const [studioInfo, setStudioInfo] = useState({
+    tagline: defaultStudioInfo.tagline,
+    description: defaultStudioInfo.description
+  })
   const heroRef = useRef(null)
   const imageRefs = useRef([])
 
-  // Ken Burns effect on images
   useEffect(() => {
-    if (!isLoaded) return
-
-    const currentImage = imageRefs.current[currentSlide]
-    if (currentImage) {
-      // Reset and animate Ken Burns
-      gsap.set(currentImage, { scale: 1, x: 0, y: 0 })
-      gsap.to(currentImage, {
-        scale: 1.15,
-        x: currentSlide % 2 === 0 ? '3%' : '-3%',
-        y: currentSlide % 2 === 0 ? '-2%' : '2%',
-        duration: 8,
-        ease: 'none'
-      })
-    }
-  }, [currentSlide, isLoaded])
-
-  // Auto-advance slides
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % heroSlides.length)
-    }, 6000)
-
-    return () => clearInterval(interval)
-  }, [])
-
-  // Parallax scroll effect
-  useEffect(() => {
-    const handleScroll = () => {
-      if (heroRef.current) {
-        const scrollY = window.scrollY
-        const parallaxValue = scrollY * 0.4
-        heroRef.current.style.transform = `translateY(${parallaxValue}px)`
+    // Try to fetch updated data from API
+    Promise.all([
+      fetch(`${API_URL}/content/hero`)
+        .then(res => res.ok ? res.json() : null)
+        .catch(() => null)
+        .then(data => {
+          // Handle both formats: { slides: [...] } or [...]
+          if (data?.slides && data.slides.length > 0) return data.slides
+          if (Array.isArray(data) && data.length > 0) return data
+          return null
+        }),
+      fetch(`${API_URL}/content/studio`)
+        .then(res => res.ok ? res.json() : null)
+        .catch(() => null)
+    ]).then(([slides, studio]) => {
+      if (slides && slides.length > 0) {
+        setHeroSlides(slides)
       }
-    }
-
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
+      if (studio && (studio.tagline || studio.description)) {
+        setStudioInfo({
+          tagline: studio.tagline || 'Timeless Memories',
+          description: studio.description || 'Crafting visual stories that transcend time. Every frame, a masterpiece.'
+        })
+      }
+    }).catch(err => {
+      console.error('Failed to load hero data:', err)
+      // Already have fallback data, so just log the error
+    })
   }, [])
 
   // Preload images
   useEffect(() => {
+    if (heroSlides.length === 0) return
+    
     const loadImages = async () => {
       const promises = heroSlides.map((slide) => {
         return new Promise((resolve) => {
@@ -69,6 +71,49 @@ export function Hero() {
     }
     
     loadImages()
+  }, [heroSlides])
+
+  // Ken Burns effect on images
+  useEffect(() => {
+    if (!isLoaded || heroSlides.length === 0) return
+
+    const currentImage = imageRefs.current[currentSlide]
+    if (currentImage) {
+      // Reset and animate Ken Burns
+      gsap.set(currentImage, { scale: 1, x: 0, y: 0 })
+      gsap.to(currentImage, {
+        scale: 1.15,
+        x: currentSlide % 2 === 0 ? '3%' : '-3%',
+        y: currentSlide % 2 === 0 ? '-2%' : '2%',
+        duration: 8,
+        ease: 'none'
+      })
+    }
+  }, [currentSlide, isLoaded, heroSlides.length])
+
+  // Auto-advance slides
+  useEffect(() => {
+    if (heroSlides.length === 0 || !isLoaded) return
+    
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroSlides.length)
+    }, 6000)
+
+    return () => clearInterval(interval)
+  }, [heroSlides.length, isLoaded])
+
+  // Parallax scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      if (heroRef.current) {
+        const scrollY = window.scrollY
+        const parallaxValue = scrollY * 0.4
+        heroRef.current.style.transform = `translateY(${parallaxValue}px)`
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
   const scrollToPortfolio = () => {
@@ -82,27 +127,43 @@ export function Hero() {
     <section id="home" className="hero" ref={heroRef}>
       {/* Background Slides */}
       <div className="hero__slides">
-        <AnimatePresence mode="wait">
-          {heroSlides.map((slide, index) => (
-            index === currentSlide && (
-              <motion.div
-                key={slide.id}
-                className="hero__slide"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <img
-                  ref={(el) => (imageRefs.current[index] = el)}
-                  src={slide.image}
-                  alt={`${slide.title} ${slide.subtitle}`}
-                  className="hero__image"
-                />
-              </motion.div>
-            )
-          ))}
-        </AnimatePresence>
+        {heroSlides.length > 0 ? (
+          <AnimatePresence mode="wait">
+            {heroSlides.map((slide, index) => (
+              index === currentSlide && (
+                <motion.div
+                  key={slide.id}
+                  className="hero__slide"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <img
+                    ref={(el) => (imageRefs.current[index] = el)}
+                    src={slide.image}
+                    alt={`${slide.title} ${slide.subtitle}`}
+                    className="hero__image"
+                  />
+                </motion.div>
+              )
+            ))}
+          </AnimatePresence>
+        ) : (
+          <div className="hero__slide">
+            <div style={{ 
+              width: '100%', 
+              height: '100%', 
+              background: 'linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--color-silver)'
+            }}>
+              Loading...
+            </div>
+          </div>
+        )}
         
         {/* Gradient Overlays */}
         <div className="hero__overlay hero__overlay--gradient" />

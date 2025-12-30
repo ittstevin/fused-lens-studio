@@ -2,8 +2,11 @@ import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { services } from '../../data/content'
 import './Services.css'
+
+import { services as defaultServices, testimonials as defaultTestimonials } from '../../data/content'
+
+const API_URL = import.meta.env.DEV ? '/api' : 'http://localhost:3001/api'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -30,7 +33,7 @@ const ServiceIcon = ({ type }) => {
         <path d="M48 20h4M12 20h4" />
       </svg>
     ),
-    art: (
+    event: (
       <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5">
         <rect x="8" y="12" width="48" height="40" rx="2" />
         <rect x="14" y="18" width="36" height="28" rx="1" />
@@ -46,20 +49,50 @@ const ServiceIcon = ({ type }) => {
 export function Services() {
   const [flippedCard, setFlippedCard] = useState(null)
   const [activeTestimonial, setActiveTestimonial] = useState(0)
-  const [testimonials, setTestimonials] = useState([])
+  const [testimonials, setTestimonials] = useState(defaultTestimonials.map(t => ({
+    id: t.id,
+    name: t.author,
+    role: t.role,
+    content: t.quote,
+    image: t.image
+  })))
+  const [services, setServices] = useState(defaultServices)
+  const [loading, setLoading] = useState(false)
   const sectionRef = useRef(null)
   const cardRefs = useRef([])
 
   useEffect(() => {
-    // Fetch testimonials
-    fetch('/api/content/testimonials')
-      .then(res => res.json())
-      .then(data => setTestimonials(data))
-      .catch(err => console.error('Failed to load testimonials:', err))
+    // Set default data immediately, then try to fetch from API
+    Promise.all([
+      fetch(`${API_URL}/content/services`)
+        .then(res => res.ok ? res.json() : null)
+        .catch(() => null),
+      fetch(`${API_URL}/content/testimonials`)
+        .then(res => res.ok ? res.json() : null)
+        .catch(() => null)
+    ]).then(([servicesData, testimonialsData]) => {
+      if (servicesData && servicesData.length > 0) {
+        setServices(servicesData)
+      }
+      if (testimonialsData && testimonialsData.length > 0) {
+        setTestimonials(testimonialsData.map(t => ({
+          id: t.id,
+          name: t.name,
+          role: t.role,
+          content: t.content,
+          image: t.image
+        })))
+      }
+    }).catch(err => {
+      console.error('Failed to load data:', err)
+      // Already have default data, so just log
+    })
   }, [])
 
   // Staggered card animation
   useEffect(() => {
+    if (services.length === 0) return
+    
     const cards = cardRefs.current.filter(Boolean)
     
     gsap.fromTo(cards,
@@ -82,16 +115,18 @@ export function Services() {
     return () => {
       ScrollTrigger.getAll().forEach(st => st.kill())
     }
-  }, [])
+  }, [services])
 
   // Auto-rotate testimonials
   useEffect(() => {
+    if (testimonials.length === 0) return
+    
     const interval = setInterval(() => {
       setActiveTestimonial((prev) => (prev + 1) % testimonials.length)
     }, 5000)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [testimonials.length])
 
   const handleCardClick = (id) => {
     setFlippedCard(flippedCard === id ? null : id)
@@ -115,8 +150,13 @@ export function Services() {
         </motion.div>
 
         {/* Service Cards */}
-        <div className="services__grid">
-          {services.map((service, index) => (
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--color-silver)' }}>
+            Loading services...
+          </div>
+        ) : (
+          <div className="services__grid">
+            {services.map((service, index) => (
             <div
               key={service.id}
               ref={(el) => (cardRefs.current[index] = el)}
@@ -139,7 +179,7 @@ export function Services() {
                 <div className="service-card__back">
                   <h3 className="service-card__title">{service.title}</h3>
                   <ul className="service-card__features">
-                    {service.features.map((feature, i) => (
+                    {(service.features || []).map((feature, i) => (
                       <li key={i} className="service-card__feature">
                         <span className="service-card__feature-icon">✓</span>
                         {feature}
@@ -160,8 +200,9 @@ export function Services() {
                 </div>
               </div>
             </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* Testimonials */}
         <motion.div
@@ -173,44 +214,56 @@ export function Services() {
         >
           <h3 className="testimonials__title">What Clients Say</h3>
           
-          <div className="testimonials__slider">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTestimonial}
-                className="testimonial"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -30 }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <blockquote className="testimonial__quote">
-                  "{testimonials[activeTestimonial]?.content}"
-                </blockquote>
-                <div className="testimonial__author">
-                  <img
-                    src={testimonials[activeTestimonial]?.image}
-                    alt={testimonials[activeTestimonial]?.name}
-                    className="testimonial__avatar"
-                  />
-                  <div className="testimonial__info">
-                    <span className="testimonial__name">{testimonials[activeTestimonial]?.name}</span>
-                    <span className="testimonial__role">{testimonials[activeTestimonial]?.role}</span>
-                  </div>
-                </div>
-              </motion.div>
-            </AnimatePresence>
-          </div>
+          {testimonials.length > 0 ? (
+            <>
+              <div className="testimonials__slider">
+                <AnimatePresence mode="wait">
+                  {testimonials[activeTestimonial] && (
+                    <motion.div
+                      key={activeTestimonial}
+                      className="testimonial"
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -30 }}
+                      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                      <blockquote className="testimonial__quote">
+                        "{testimonials[activeTestimonial]?.content}"
+                      </blockquote>
+                      <div className="testimonial__author">
+                        {testimonials[activeTestimonial]?.image && (
+                          <img
+                            src={testimonials[activeTestimonial].image}
+                            alt={testimonials[activeTestimonial].name}
+                            className="testimonial__avatar"
+                          />
+                        )}
+                        <div className="testimonial__info">
+                          <span className="testimonial__name">{testimonials[activeTestimonial]?.name}</span>
+                          <span className="testimonial__role">{testimonials[activeTestimonial]?.role}</span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
 
-          <div className="testimonials__dots">
-            {testimonials.map((_, index) => (
-              <button
-                key={index}
-                className={`testimonials__dot ${index === activeTestimonial ? 'testimonials__dot--active' : ''}`}
-                onClick={() => setActiveTestimonial(index)}
-                aria-label={`Go to testimonial ${index + 1}`}
-              />
-            ))}
-          </div>
+              <div className="testimonials__dots">
+                {testimonials.map((_, index) => (
+                  <button
+                    key={index}
+                    className={`testimonials__dot ${index === activeTestimonial ? 'testimonials__dot--active' : ''}`}
+                    onClick={() => setActiveTestimonial(index)}
+                    aria-label={`Go to testimonial ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </>
+          ) : (
+            <p style={{ color: 'var(--color-silver)', fontStyle: 'italic' }}>
+              No testimonials available yet.
+            </p>
+          )}
         </motion.div>
       </div>
     </section>

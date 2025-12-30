@@ -1,6 +1,6 @@
 {
   "studio": {
-    "name": "Fused Lens Studio",
+    "name": "Fused Lens Studios",
     "tagline": "Timeless Memories",
     "description": "Crafting visual stories that transcend time. Every frame, a masterpiece.",
     "founded": 2018,
@@ -42,7 +42,7 @@
   "services": [
     {
       "id": 1,
-      "title": "Wedding Photography",
+      "title": "Wedding Photograph",
       "description": "Capturing your love story with cinematic elegance. Every moment, every emotion, preserved forever.",
       "icon": "wedding",
       "features": [
@@ -139,6 +139,12 @@
       "image": "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1920&q=90",
       "title": "Love",
       "subtitle": "Captured Forever"
+    },
+    {
+      "id": 1767110418652,
+      "title": "Beauty",
+      "subtitle": "Black and White",
+      "image": "https://unsplash.com/photos/grayscale-shot-of-bride-and-groom-FTW8ADj5igs"
     }
   ],
   "collaborators": [
@@ -175,5 +181,32 @@
       "Client-centered approach",
       "Continuous innovation"
     ]
-  }
+  },
+  "timeline": [
+    {
+      "year": 2018,
+      "title": "Studio Founded",
+      "description": "Started with a vision to create timeless visual stories."
+    },
+    {
+      "year": 2019,
+      "title": "First Major Campaign",
+      "description": "Collaborated with leading brands in Kenya."
+    },
+    {
+      "year": 2020,
+      "title": "Virtual Innovation",
+      "description": "Pioneered remote photoshoots during global challenges."
+    },
+    {
+      "year": 2021,
+      "title": "Award Recognition",
+      "description": "Received the Photography Excellence Award."
+    },
+    {
+      "year": 2023,
+      "title": "Studio Expansion",
+      "description": "Opened our flagship studio space in Kiambu."
+    }
+  ]
 }

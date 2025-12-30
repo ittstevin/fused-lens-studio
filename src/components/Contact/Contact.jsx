@@ -2,8 +2,11 @@ import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { studioInfo } from '../../data/content'
 import './Contact.css'
+
+import { studioInfo as defaultStudioInfo } from '../../data/content'
+
+const API_URL = import.meta.env.DEV ? '/api' : 'http://localhost:3001/api'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -53,8 +56,36 @@ export function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState(null)
   const [focusedField, setFocusedField] = useState(null)
+  const [studioInfo, setStudioInfo] = useState({
+    location: defaultStudioInfo.location,
+    address: defaultStudioInfo.address,
+    email: defaultStudioInfo.email,
+    phone: defaultStudioInfo.phone,
+    whatsapp: defaultStudioInfo.whatsapp,
+    social: defaultStudioInfo.social
+  })
   
   const sectionRef = useRef(null)
+
+  useEffect(() => {
+    // Try to fetch updated studio info from API
+    fetch(`${API_URL}/content/studio`)
+      .then(res => res.ok ? res.json() : null)
+      .catch(() => null)
+      .then(data => {
+        if (data) {
+          setStudioInfo({
+            location: data.location || defaultStudioInfo.location,
+            address: data.address || defaultStudioInfo.address,
+            email: data.email || defaultStudioInfo.email,
+            phone: data.phone || defaultStudioInfo.phone,
+            whatsapp: data.whatsapp || defaultStudioInfo.whatsapp,
+            social: data.social || defaultStudioInfo.social
+          })
+        }
+      })
+      .catch(err => console.error('Failed to load studio info:', err))
+  }, [])
 
   const validateForm = () => {
     const newErrors = {}
@@ -96,7 +127,7 @@ export function Contact() {
     setErrors({})
     
     try {
-      const response = await fetch('http://localhost:3001/api/contact', {
+      const response = await fetch(`${API_URL}/contact`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -166,7 +197,7 @@ export function Contact() {
             <motion.div className="contact__map" variants={itemVariants}>
               <div className="contact__map-visual">
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.819!2d36.783!3d-1.283!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f1172b28c0c5%3A0x3e2a010c9d118e0!2sKirigiti%2C%20Kenya!5e0!3m2!1sen!2sus!4v1690000000000!5m2!1sen!2sus"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.819!2d36.8356!3d-1.1684!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f1172b28c0c5%3A0x3e2a010c9d118e0!2sKirigiti%2C%20Kiambu%2C%20Kenya!5e0!3m2!1sen!2sus!4v1690000000000!5m2!1sen!2sus"
                   width="100%"
                   height="300"
                   style={{ border: 0, borderRadius: '8px' }}

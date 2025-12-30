@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import './CollectionLightbox.css'
 
-const API_URL = 'http://localhost:3001/api'
+const API_URL = import.meta.env.DEV ? '/api' : 'http://localhost:3001/api'
 
 export function CollectionLightbox({ collection, onClose }) {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)

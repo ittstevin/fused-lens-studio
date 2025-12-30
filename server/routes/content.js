@@ -96,7 +96,7 @@ router.put('/mission', authenticateToken, (req, res) => {
 router.get('/hero', (req, res) => {
   try {
     const content = readContent()
-    res.json(content.heroSlides)
+    res.json({ slides: content.heroSlides || [] })
   } catch (error) {
     res.status(500).json({ error: 'Failed to load hero slides' })
   }
@@ -215,6 +215,27 @@ router.put('/stats', authenticateToken, (req, res) => {
     res.json(content.stats)
   } catch (error) {
     res.status(500).json({ error: 'Failed to update stats' })
+  }
+})
+
+// Get/Update timeline
+router.get('/timeline', (req, res) => {
+  try {
+    const content = readContent()
+    res.json(content.timeline || [])
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to load timeline' })
+  }
+})
+
+router.put('/timeline', authenticateToken, (req, res) => {
+  try {
+    const content = readContent()
+    content.timeline = req.body.timeline
+    writeContent(content)
+    res.json(content.timeline)
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update timeline' })
   }
 })
 

@@ -76,8 +76,15 @@ body {
   font-weight: 300;
   line-height: 1.6;
   color: var(--color-charcoal);
-  background: var(--color-white);
+  background: var(--color-black);
   overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  min-height: 100vh;
+  background: var(--color-black);
 }
 
 /* Smooth scroll container */
