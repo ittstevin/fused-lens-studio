@@ -3,57 +3,24 @@ import { motion } from 'framer-motion'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { aboutImage } from '../../data/images'
+import { studioInfo, timeline, stats } from '../../data/content'
 import { AnimatedCounter } from '../Effects'
 import './About.css'
-
-import { studioInfo as defaultStudioInfo, stats as defaultStats, timeline as defaultTimeline } from '../../data/content'
-
-const API_URL = import.meta.env.DEV ? '/api' : 'http://localhost:3001/api'
 
 gsap.registerPlugin(ScrollTrigger)
 
 export function About() {
   const [about, setAbout] = useState(null)
-  const [studioInfo, setStudioInfo] = useState({
-    name: defaultStudioInfo.name,
-    founded: defaultStudioInfo.founded
-  })
-  const [stats, setStats] = useState(defaultStats)
-  const [timeline, setTimeline] = useState(defaultTimeline)
   const sectionRef = useRef(null)
   const imageRef = useRef(null)
   const milestoneRefs = useRef([])
 
   useEffect(() => {
-    // Set default data immediately, then try to fetch from API
-    Promise.all([
-      fetch(`${API_URL}/content/about`)
-        .then(res => res.ok ? res.json() : null)
-        .catch(() => null),
-      fetch(`${API_URL}/content/studio`)
-        .then(res => res.ok ? res.json() : null)
-        .catch(() => null),
-      fetch(`${API_URL}/content/stats`)
-        .then(res => res.ok ? res.json() : null)
-        .catch(() => null),
-      fetch(`${API_URL}/content/timeline`)
-        .then(res => res.ok ? res.json() : null)
-        .catch(() => null)
-    ]).then(([aboutData, studioData, statsData, timelineData]) => {
-      if (aboutData) setAbout(aboutData)
-      if (studioData) {
-        setStudioInfo({
-          name: studioData.name || defaultStudioInfo.name,
-          founded: studioData.founded || defaultStudioInfo.founded
-        })
-      }
-      if (statsData && Array.isArray(statsData) && statsData.length > 0) {
-        setStats(statsData)
-      }
-      if (timelineData && Array.isArray(timelineData) && timelineData.length > 0) {
-        setTimeline(timelineData)
-      }
-    }).catch(err => console.error('Failed to load about data:', err))
+    // Fetch about content
+    fetch('/api/content/about')
+      .then(res => res.json())
+      .then(data => setAbout(data))
+      .catch(err => console.error('Failed to load about:', err))
   }, [])
 
   // Parallax effect on image
@@ -79,8 +46,6 @@ export function About() {
 
   // Timeline animations
   useEffect(() => {
-    if (timeline.length === 0) return
-    
     const milestones = milestoneRefs.current.filter(Boolean)
     
     milestones.forEach((milestone, index) => {
@@ -103,7 +68,7 @@ export function About() {
     return () => {
       ScrollTrigger.getAll().forEach(st => st.kill())
     }
-  }, [timeline])
+  }, [])
 
   const containerVariants = {
     hidden: { opacity: 0 },

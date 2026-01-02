@@ -37,11 +37,19 @@
   font-size: 1.5rem;
   color: var(--color-white);
   margin-bottom: var(--space-md);
+  text-decoration: none;
 }
 
-.footer__logo-icon {
-  color: var(--color-accent);
-  font-size: 1.75rem;
+.footer__logo-image {
+  height: 50px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  transition: transform var(--transition-smooth);
+}
+
+.footer__logo:hover .footer__logo-image {
+  transform: scale(1.05);
 }
 
 .footer__tagline {

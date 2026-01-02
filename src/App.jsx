@@ -44,7 +44,7 @@ function App() {
   }, [])
 
   return (
-    <div className="app" style={{ minHeight: '100vh', background: '#0a0a0a' }}>
+    <div className="app">
       {/* Global Effects */}
       <FloatingParticles count={25} />
       <CursorGlow />

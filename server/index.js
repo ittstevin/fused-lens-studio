@@ -5,9 +5,6 @@ import { dirname, join } from 'path'
 import authRoutes from './routes/auth.js'
 import contentRoutes from './routes/content.js'
 import photoRoutes from './routes/photos.js'
-import collectionsRoutes from './routes/collections.js'
-import contactRoutes from './routes/contact.js'
-import commentsRoutes from './routes/comments.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -24,9 +21,6 @@ app.use('/uploads', express.static(join(__dirname, 'uploads')))
 app.use('/api/auth', authRoutes)
 app.use('/api/content', contentRoutes)
 app.use('/api/photos', photoRoutes)
-app.use('/api/collections', collectionsRoutes)
-app.use('/api/contact', contactRoutes)
-app.use('/api/comments', commentsRoutes)
 
 // Health check
 app.get('/api/health', (req, res) => {

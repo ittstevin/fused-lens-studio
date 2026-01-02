@@ -1,12 +1,8 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useScrollProgress } from '../../hooks'
-import { navLinks } from '../../data/content'
+import { navLinks, studioInfo } from '../../data/content'
 import './Navigation.css'
-
-import { studioInfo as defaultStudioInfo } from '../../data/content'
-
-const API_URL = import.meta.env.DEV ? '/api' : 'http://localhost:3001/api'
 
 export function Navigation() {
   const progress = useScrollProgress()
@@ -14,22 +10,6 @@ export function Navigation() {
   const [activeSection, setActiveSection] = useState('home')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isDark, setIsDark] = useState(true)
-  const [studioInfo, setStudioInfo] = useState({
-    name: defaultStudioInfo.name
-  })
-
-  useEffect(() => {
-    // Try to fetch updated studio info from API
-    fetch(`${API_URL}/content/studio`)
-      .then(res => res.ok ? res.json() : null)
-      .catch(() => null)
-      .then(data => {
-        if (data?.name) {
-          setStudioInfo({ name: data.name })
-        }
-      })
-      .catch(err => console.error('Failed to load studio info:', err))
-  }, [])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -96,7 +76,11 @@ export function Navigation() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <span className="nav__logo-icon">◈</span>
+            <img 
+              src="/camlogo.png" 
+              alt={studioInfo.name}
+              className="nav__logo-image"
+            />
             <span className="nav__logo-text">{studioInfo.name}</span>
           </motion.a>
 

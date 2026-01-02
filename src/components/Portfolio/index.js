@@ -1,2 +1,3 @@
 export { Portfolio } from './Portfolio'
-export { CollectionLightbox } from './CollectionLightbox'
+export { Lightbox } from './Lightbox'
+

@@ -2,23 +2,23 @@ import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { photoCollections, categories } from '../../data/images'
-import { CollectionLightbox } from './CollectionLightbox'
+import { portfolioImages, categories } from '../../data/images'
+import { Lightbox } from './Lightbox'
 import './Portfolio.css'
 
 gsap.registerPlugin(ScrollTrigger)
 
 export function Portfolio() {
   const [activeCategory, setActiveCategory] = useState('all')
-  const [selectedCollection, setSelectedCollection] = useState(null)
+  const [selectedImage, setSelectedImage] = useState(null)
   const [hoveredId, setHoveredId] = useState(null)
   const sectionRef = useRef(null)
   const gridRef = useRef(null)
   const itemRefs = useRef([])
 
-  const filteredCollections = activeCategory === 'all'
-    ? photoCollections
-    : photoCollections.filter(col => col.category === activeCategory)
+  const filteredImages = activeCategory === 'all'
+    ? portfolioImages
+    : portfolioImages.filter(img => img.category === activeCategory)
 
   // Scroll-triggered staggered animations
   useEffect(() => {
@@ -44,7 +44,7 @@ export function Portfolio() {
       animation.kill()
       ScrollTrigger.getAll().forEach(st => st.kill())
     }
-  }, [filteredCollections])
+  }, [filteredImages])
 
   // Tilt effect on hover
   const handleMouseMove = (e, index) => {
@@ -56,8 +56,8 @@ export function Portfolio() {
     const y = (e.clientY - rect.top) / rect.height - 0.5
 
     gsap.to(item, {
-      rotateY: x * 8,
-      rotateX: -y * 8,
+      rotateY: x * 10,
+      rotateX: -y * 10,
       transformPerspective: 1000,
       duration: 0.3,
       ease: 'power2.out'
@@ -88,9 +88,9 @@ export function Portfolio() {
           transition={{ duration: 0.8 }}
         >
           <span className="section-label">Portfolio</span>
-          <h2 className="section-title">Our Collections</h2>
+          <h2 className="section-title">Selected Works</h2>
           <p className="section-subtitle">
-            Explore our curated photo collections. Each project tells a unique story through carefully crafted imagery.
+            A curated collection of our finest photography, showcasing our passion for visual storytelling.
           </p>
         </motion.div>
 
@@ -122,105 +122,65 @@ export function Portfolio() {
           ))}
         </motion.div>
 
-        {/* Collections Grid */}
+        {/* Masonry Grid */}
         <div className="portfolio__grid" ref={gridRef}>
           <AnimatePresence mode="popLayout">
-            {filteredCollections.map((collection, index) => (
+            {filteredImages.map((image, index) => (
               <motion.article
-                key={collection.id}
+                key={image.id}
                 ref={(el) => (itemRefs.current[index] = el)}
-                className="portfolio__collection"
+                className={`portfolio__item portfolio__item--${image.aspect}`}
                 layout
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                 onMouseMove={(e) => handleMouseMove(e, index)}
-                onMouseEnter={() => setHoveredId(collection.id)}
+                onMouseEnter={() => setHoveredId(image.id)}
                 onMouseLeave={() => handleMouseLeave(index)}
-                onClick={() => setSelectedCollection(collection)}
+                onClick={() => setSelectedImage(image)}
                 style={{ transformStyle: 'preserve-3d' }}
               >
-                <div className="portfolio__collection-inner">
-                  {/* Cover Image */}
-                  <div className="portfolio__collection-cover">
-                    <img
-                      src={collection.coverImage}
-                      alt={collection.title}
-                      loading="lazy"
-                    />
-                    
-                    {/* Photo count badge */}
-                    <span className="portfolio__collection-count">
-                      {collection.photos.length} Photos
-                    </span>
-                  </div>
+                <div className="portfolio__item-inner">
+                  <img
+                    src={image.src}
+                    alt={image.title}
+                    className="portfolio__image"
+                    loading="lazy"
+                  />
                   
                   {/* Hover Overlay */}
                   <motion.div
-                    className="portfolio__collection-overlay"
+                    className="portfolio__overlay"
                     initial={{ opacity: 0 }}
-                    animate={{ opacity: hoveredId === collection.id ? 1 : 0 }}
+                    animate={{ opacity: hoveredId === image.id ? 1 : 0 }}
                     transition={{ duration: 0.3 }}
                   >
-                    {/* Preview thumbnails */}
-                    <div className="portfolio__collection-preview">
-                      {collection.photos.slice(0, 3).map((photo, i) => (
-                        <motion.div
-                          key={photo.id}
-                          className="portfolio__collection-thumb"
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ 
-                            opacity: hoveredId === collection.id ? 1 : 0, 
-                            y: hoveredId === collection.id ? 0 : 20 
-                          }}
-                          transition={{ delay: i * 0.1, duration: 0.3 }}
-                        >
-                          <img src={photo.src} alt="" />
-                        </motion.div>
-                      ))}
-                    </div>
-
                     <motion.div
-                      className="portfolio__collection-info"
+                      className="portfolio__info"
                       initial={{ y: 20, opacity: 0 }}
                       animate={{ 
-                        y: hoveredId === collection.id ? 0 : 20, 
-                        opacity: hoveredId === collection.id ? 1 : 0 
+                        y: hoveredId === image.id ? 0 : 20, 
+                        opacity: hoveredId === image.id ? 1 : 0 
                       }}
                       transition={{ duration: 0.3, delay: 0.1 }}
                     >
-                      <span className="portfolio__collection-category">{collection.category}</span>
-                      <h3 className="portfolio__collection-title">{collection.title}</h3>
-                      <p className="portfolio__collection-location">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
-                          <circle cx="12" cy="10" r="3" />
-                        </svg>
-                        {collection.location}
-                      </p>
-                      <span className="portfolio__collection-view">
-                        View Collection →
-                      </span>
+                      <span className="portfolio__category">{image.category}</span>
+                      <h3 className="portfolio__title">{image.title}</h3>
+                      <span className="portfolio__view">View Project →</span>
                     </motion.div>
                   </motion.div>
 
                   {/* Shine effect */}
                   <motion.div
-                    className="portfolio__collection-shine"
+                    className="portfolio__shine"
                     initial={{ opacity: 0, x: '-100%' }}
                     animate={{ 
-                      opacity: hoveredId === collection.id ? 0.15 : 0,
-                      x: hoveredId === collection.id ? '100%' : '-100%'
+                      opacity: hoveredId === image.id ? 0.15 : 0,
+                      x: hoveredId === image.id ? '100%' : '-100%'
                     }}
                     transition={{ duration: 0.6 }}
                   />
-                </div>
-
-                {/* Collection Meta (always visible) */}
-                <div className="portfolio__collection-meta">
-                  <span className="portfolio__collection-date">{collection.date}</span>
-                  <h3 className="portfolio__collection-name">{collection.title}</h3>
                 </div>
               </motion.article>
             ))}
@@ -228,13 +188,14 @@ export function Portfolio() {
         </div>
       </div>
 
-      {/* Collection Lightbox */}
-      {selectedCollection && (
-        <CollectionLightbox
-          collection={selectedCollection}
-          onClose={() => setSelectedCollection(null)}
-        />
-      )}
+      {/* Lightbox */}
+      <Lightbox
+        image={selectedImage}
+        images={filteredImages}
+        onClose={() => setSelectedImage(null)}
+        onNavigate={setSelectedImage}
+      />
     </section>
   )
 }
+

@@ -4,6 +4,33 @@ import './admin.css'
 
 const API_URL = 'http://localhost:3001/api'
 
+// Helper function to convert Google Drive link to direct image URL
+const convertGoogleDriveLink = (url) => {
+  if (!url) return ''
+  
+  // If it's already a direct image URL, return as is
+  if (url.includes('drive.google.com/uc?') || url.includes('lh3.googleusercontent.com')) {
+    return url
+  }
+  
+  // Convert Google Drive sharing link to direct image URL
+  // Format: https://drive.google.com/file/d/FILE_ID/view?usp=sharing
+  const fileIdMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)
+  if (fileIdMatch) {
+    const fileId = fileIdMatch[1]
+    return `https://drive.google.com/uc?export=view&id=${fileId}`
+  }
+  
+  // Format: https://drive.google.com/open?id=FILE_ID
+  const openIdMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/)
+  if (openIdMatch) {
+    const fileId = openIdMatch[1]
+    return `https://drive.google.com/uc?export=view&id=${fileId}`
+  }
+  
+  return url
+}
+
 // Login Component
 function Login({ onLogin }) {
   const [username, setUsername] = useState('')
@@ -25,7 +52,7 @@ function Login({ onLogin }) {
 
       const text = await res.text()
       if (!text) {
-        throw new Error('Server returned empty response. Make sure the backend is running on port 3002.')
+        throw new Error('Server returned empty response. Make sure the backend is running on port 3001.')
       }
 
       let data
@@ -60,7 +87,7 @@ function Login({ onLogin }) {
         animate={{ opacity: 1, y: 0 }}
       >
         <div className="admin-login__header">
-          <span className="admin-login__icon">◈</span>
+          <img src="/camlogo.png" alt="Fused Lens Studio" className="admin-login__icon" />
           <h1>Fused Lens Studio</h1>
           <p>Admin Panel</p>
         </div>
@@ -103,77 +130,47 @@ function Login({ onLogin }) {
 
 // Overview Component
 function Overview({ data }) {
-  const stats = [
-    { label: 'Contact Messages', value: data.contacts?.length || 0, icon: '💌', color: 'var(--admin-accent)' },
-    { label: 'Photo Comments', value: data.comments?.length || 0, icon: '💭', color: 'var(--admin-success)' },
-    { label: 'Portfolio Photos', value: data.photos?.photos?.length || 0, icon: '📷', color: '#8b5cf6' },
-    { label: 'Testimonials', value: data.testimonials?.length || 0, icon: '💬', color: '#f59e0b' },
-    { label: 'Team Members', value: data.collaborators?.length || 0, icon: '👥', color: '#ec4899' },
-    { label: 'Services', value: data.content?.services?.length || 0, icon: '💼', color: '#06b6d4' }
-  ]
-
   return (
-    <motion.div 
-      className="admin-overview"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-    >
+    <div className="admin-overview">
       <div className="admin-stats-grid">
-        {stats.map((stat, index) => (
-          <motion.div
-            key={stat.label}
-            className="admin-stat-card"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            whileHover={{ scale: 1.02, y: -4 }}
-          >
-            <div className="admin-stat-card__icon" style={{ color: stat.color }}>
-              {stat.icon}
-            </div>
-            <motion.h3
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: index * 0.1 + 0.2, type: 'spring', stiffness: 200 }}
-            >
-              {stat.value}
-            </motion.h3>
-            <p>{stat.label}</p>
-          </motion.div>
-        ))}
+        <div className="admin-stat-card">
+          <h3>{data.contacts?.length || 0}</h3>
+          <p>Contact Messages</p>
+        </div>
+        <div className="admin-stat-card">
+          <h3>{data.comments?.length || 0}</h3>
+          <p>Photo Comments</p>
+        </div>
+        <div className="admin-stat-card">
+          <h3>{data.photos?.photos?.length || 0}</h3>
+          <p>Portfolio Photos</p>
+        </div>
+        <div className="admin-stat-card">
+          <h3>{data.testimonials?.length || 0}</h3>
+          <p>Testimonials</p>
+        </div>
+        <div className="admin-stat-card">
+          <h3>{data.collaborators?.length || 0}</h3>
+          <p>Team Members</p>
+        </div>
+        <div className="admin-stat-card">
+          <h3>{data.content?.services?.length || 0}</h3>
+          <p>Services</p>
+        </div>
       </div>
 
-      <motion.div 
-        className="admin-recent-activity"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.5 }}
-      >
+      <div className="admin-recent-activity">
         <h2>Recent Activity</h2>
         <div className="admin-activity-list">
-          {data.contacts?.slice(0, 5).map((contact, index) => (
-            <motion.div
-              key={contact.id}
-              className="admin-activity-item"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.7 + index * 0.1, duration: 0.4 }}
-              whileHover={{ x: 4, backgroundColor: 'rgba(201, 169, 98, 0.05)' }}
-            >
+          {data.contacts?.slice(0, 5).map(contact => (
+            <div key={contact.id} className="admin-activity-item">
               <span>New contact from {contact.name}</span>
               <time>{new Date(contact.submittedAt).toLocaleDateString()}</time>
-            </motion.div>
-          ))}
-          {(!data.contacts || data.contacts.length === 0) && (
-            <div className="admin-empty">
-              <span>📭</span>
-              <p>No recent activity</p>
             </div>
-          )}
+          ))}
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   )
 }
 
@@ -191,8 +188,15 @@ function StudioEditor({ data, onSave, saving }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="admin-form">
-      <div className="admin-grid">
+    <div className="admin-section">
+      <div className="admin-section__header">
+        <div>
+          <h2>Studio Information</h2>
+          <p>Update your studio details and contact information</p>
+        </div>
+      </div>
+      <form onSubmit={handleSubmit}>
+        <div className="admin-grid">
         <div className="admin-input-group">
           <label>Studio Name</label>
           <input
@@ -267,31 +271,13 @@ function StudioEditor({ data, onSave, saving }) {
         </div>
       </div>
 
-      <div className="admin-actions">
-        <motion.button
-          type="submit"
-          className="admin-btn admin-btn--primary"
-          disabled={saving}
-          whileHover={!saving ? { scale: 1.02, y: -2 } : {}}
-          whileTap={!saving ? { scale: 0.98 } : {}}
-        >
-          {saving ? (
-            <>
-              <motion.span
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                style={{ display: 'inline-block' }}
-              >
-                ⏳
-              </motion.span>
-              Saving...
-            </>
-          ) : (
-            'Save Studio Info'
-          )}
-        </motion.button>
-      </div>
-    </form>
+        <div className="admin-actions">
+          <button type="submit" className="admin-btn admin-btn--primary" disabled={saving}>
+            {saving ? 'Saving...' : 'Save Studio Info'}
+          </button>
+        </div>
+      </form>
+    </div>
   )
 }
 
@@ -313,9 +299,17 @@ function HeroEditor({ data, onSave, saving }) {
   }
 
   const updateSlide = (index, field, value) => {
-    setSlides(prev => prev.map((slide, i) =>
-      i === index ? { ...slide, [field]: value } : slide
-    ))
+    setSlides(prev => prev.map((slide, i) => {
+      if (i === index) {
+        const updated = { ...slide, [field]: value }
+        // Auto-convert Google Drive links when pasted
+        if (field === 'image' && value.includes('drive.google.com')) {
+          updated.image = convertGoogleDriveLink(value)
+        }
+        return updated
+      }
+      return slide
+    }))
   }
 
   const removeSlide = (index) => {
@@ -328,112 +322,92 @@ function HeroEditor({ data, onSave, saving }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="admin-form">
-      <div className="admin-section-header">
-        <h3>Hero Slides</h3>
-        <motion.button
-          type="button"
-          className="admin-btn admin-btn--secondary"
-          onClick={addSlide}
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          Add Slide
-        </motion.button>
+    <div className="admin-section">
+      <div className="admin-section__header">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h2>Hero Slides</h2>
+            <p>Add slides for the homepage hero section</p>
+          </div>
+          <button type="button" className="admin-btn admin-btn--secondary" onClick={addSlide}>
+            + Add Slide
+          </button>
+        </div>
       </div>
 
-      {slides.map((slide, index) => (
-        <motion.div
-          key={slide.id}
-          className="admin-card"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ delay: index * 0.1, duration: 0.3 }}
-          layout
-        >
-          <div className="admin-card__header">
-            <h4>Slide {index + 1}</h4>
-            <motion.button
-              type="button"
-              className="admin-btn admin-btn--danger admin-btn--small"
-              onClick={() => removeSlide(index)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Remove
-            </motion.button>
-          </div>
+      {slides.length === 0 ? (
+        <div className="admin-empty">
+          <span>🎬</span>
+          <p>No slides yet. Click "Add Slide" to get started.</p>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          {slides.map((slide, index) => (
+            <div key={slide.id} className="admin-card">
+              <div className="admin-card__header">
+                <h4>Slide {index + 1}</h4>
+                <button
+                  type="button"
+                  className="admin-btn admin-btn--danger admin-btn--small"
+                  onClick={() => removeSlide(index)}
+                >
+                  Remove
+                </button>
+              </div>
 
-          <div className="admin-grid">
-            <div className="admin-input-group">
-              <label>Title</label>
-              <input
-                type="text"
-                value={slide.title}
-                onChange={(e) => updateSlide(index, 'title', e.target.value)}
-                required
-              />
+              <div className="admin-grid">
+                <div className="admin-input-group">
+                  <label>Title</label>
+                  <input
+                    type="text"
+                    value={slide.title}
+                    onChange={(e) => updateSlide(index, 'title', e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="admin-input-group">
+                  <label>Subtitle</label>
+                  <input
+                    type="text"
+                    value={slide.subtitle}
+                    onChange={(e) => updateSlide(index, 'subtitle', e.target.value)}
+                  />
+                </div>
+
+                <div className="admin-input-group admin-input-group--full">
+                  <label>Google Drive Link or Image URL</label>
+                  <input
+                    type="url"
+                    value={slide.image}
+                    onChange={(e) => updateSlide(index, 'image', e.target.value)}
+                    placeholder="Paste Google Drive link or image URL"
+                    required
+                  />
+                  <small style={{ color: 'var(--admin-text-muted)', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+                    Paste your Google Drive sharing link - it will be converted automatically
+                  </small>
+                </div>
+              </div>
+
+              {slide.image && (
+                <div className="admin-image-preview">
+                  <img src={slide.image} alt={slide.title} onError={(e) => {
+                    e.target.style.opacity = '0.5'
+                  }} />
+                </div>
+              )}
             </div>
-
-            <div className="admin-input-group">
-              <label>Subtitle</label>
-              <input
-                type="text"
-                value={slide.subtitle}
-                onChange={(e) => updateSlide(index, 'subtitle', e.target.value)}
-              />
-            </div>
-
-            <div className="admin-input-group admin-input-group--full">
-              <label>Image URL</label>
-              <input
-                type="url"
-                value={slide.image}
-                onChange={(e) => updateSlide(index, 'image', e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          {slide.image && (
-            <motion.div
-              className="admin-image-preview"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3 }}
-            >
-              <img src={slide.image} alt={slide.title} />
-            </motion.div>
-          )}
-        </motion.div>
-      ))}
+          ))}
+        </div>
+      )}
 
       <div className="admin-actions">
-        <motion.button
-          type="submit"
-          className="admin-btn admin-btn--primary"
-          disabled={saving}
-          whileHover={!saving ? { scale: 1.02, y: -2 } : {}}
-          whileTap={!saving ? { scale: 0.98 } : {}}
-        >
-          {saving ? (
-            <>
-              <motion.span
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                style={{ display: 'inline-block' }}
-              >
-                ⏳
-              </motion.span>
-              Saving...
-            </>
-          ) : (
-            'Save Hero Slides'
-          )}
-        </motion.button>
+        <button type="button" className="admin-btn admin-btn--primary" onClick={handleSubmit} disabled={saving}>
+          {saving ? 'Saving...' : 'Save Hero Slides'}
+        </button>
       </div>
-    </form>
+    </div>
   )
 }
 
@@ -451,74 +425,63 @@ function AboutEditor({ data, onSave, saving }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="admin-form">
-      <div className="admin-grid">
-        <div className="admin-input-group admin-input-group--full">
-          <label>Title</label>
-          <input
-            type="text"
-            value={formData.title || ''}
-            onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-          />
-        </div>
-
-        <div className="admin-input-group admin-input-group--full">
-          <label>Content</label>
-          <textarea
-            value={formData.content || ''}
-            onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-            rows={6}
-          />
-        </div>
-
-        <div className="admin-input-group admin-input-group--full">
-          <label>Story</label>
-          <textarea
-            value={formData.story || ''}
-            onChange={(e) => setFormData(prev => ({ ...prev, story: e.target.value }))}
-            rows={6}
-          />
-        </div>
-
-        <div className="admin-input-group admin-input-group--full">
-          <label>Values (one per line)</label>
-          <textarea
-            value={formData.values?.join('\n') || ''}
-            onChange={(e) => setFormData(prev => ({
-              ...prev,
-              values: e.target.value.split('\n').filter(v => v.trim())
-            }))}
-            rows={4}
-            placeholder="Creativity&#10;Excellence&#10;Innovation"
-          />
+    <div className="admin-section">
+      <div className="admin-section__header">
+        <div>
+          <h2>About Page Content</h2>
+          <p>Update the about section content</p>
         </div>
       </div>
+      <form onSubmit={handleSubmit}>
+        <div className="admin-grid">
+          <div className="admin-input-group admin-input-group--full">
+            <label>Title</label>
+            <input
+              type="text"
+              value={formData.title || ''}
+              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+            />
+          </div>
 
-      <div className="admin-actions">
-        <motion.button
-          type="submit"
-          className="admin-btn admin-btn--primary"
-          disabled={saving}
-          whileHover={!saving ? { scale: 1.02, y: -2 } : {}}
-          whileTap={!saving ? { scale: 0.98 } : {}}
-        >
-          {saving ? (
-            <>
-              <motion.span
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                style={{ display: 'inline-block' }}
-              >
-                ⏳
-              </motion.span>
-              Saving...
-            </>
-          ) : (
-            'Save About Content'
-          )}
-        </motion.button>
-      </div>
-    </form>
+          <div className="admin-input-group admin-input-group--full">
+            <label>Content</label>
+            <textarea
+              value={formData.content || ''}
+              onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
+              rows={6}
+            />
+          </div>
+
+          <div className="admin-input-group admin-input-group--full">
+            <label>Story</label>
+            <textarea
+              value={formData.story || ''}
+              onChange={(e) => setFormData(prev => ({ ...prev, story: e.target.value }))}
+              rows={6}
+            />
+          </div>
+
+          <div className="admin-input-group admin-input-group--full">
+            <label>Values (one per line)</label>
+            <textarea
+              value={formData.values?.join('\n') || ''}
+              onChange={(e) => setFormData(prev => ({
+                ...prev,
+                values: e.target.value.split('\n').filter(v => v.trim())
+              }))}
+              rows={4}
+              placeholder="Creativity&#10;Excellence&#10;Innovation"
+            />
+          </div>
+        </div>
+
+        <div className="admin-actions">
+          <button type="submit" className="admin-btn admin-btn--primary" disabled={saving}>
+            {saving ? 'Saving...' : 'Save About Content'}
+          </button>
+        </div>
+      </form>
+    </div>
   )
 }
 
@@ -554,41 +517,31 @@ function ServicesEditor({ data, onSave, saving }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="admin-form">
-      <div className="admin-section-header">
-        <h3>Services</h3>
-        <motion.button
-          type="button"
-          className="admin-btn admin-btn--secondary"
-          onClick={addService}
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          Add Service
-        </motion.button>
+    <div className="admin-section">
+      <div className="admin-section__header">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h2>Services</h2>
+            <p>Manage your photography services</p>
+          </div>
+          <button type="button" className="admin-btn admin-btn--secondary" onClick={addService}>
+            + Add Service
+          </button>
+        </div>
       </div>
+      <form onSubmit={handleSubmit}>
 
       {services.map((service, index) => (
-        <motion.div
-          key={service.id}
-          className="admin-card"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ delay: index * 0.1, duration: 0.3 }}
-          layout
-        >
+        <div key={service.id} className="admin-card">
           <div className="admin-card__header">
             <h4>Service {index + 1}</h4>
-            <motion.button
+            <button
               type="button"
               className="admin-btn admin-btn--danger admin-btn--small"
               onClick={() => removeService(index)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
             >
               Remove
-            </motion.button>
+            </button>
           </div>
 
           <div className="admin-grid">
@@ -612,34 +565,16 @@ function ServicesEditor({ data, onSave, saving }) {
               />
             </div>
           </div>
-        </motion.div>
+        </div>
       ))}
 
-      <div className="admin-actions">
-        <motion.button
-          type="submit"
-          className="admin-btn admin-btn--primary"
-          disabled={saving}
-          whileHover={!saving ? { scale: 1.02, y: -2 } : {}}
-          whileTap={!saving ? { scale: 0.98 } : {}}
-        >
-          {saving ? (
-            <>
-              <motion.span
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                style={{ display: 'inline-block' }}
-              >
-                ⏳
-              </motion.span>
-              Saving...
-            </>
-          ) : (
-            'Save Services'
-          )}
-        </motion.button>
-      </div>
-    </form>
+        <div className="admin-actions">
+          <button type="submit" className="admin-btn admin-btn--primary" disabled={saving}>
+            {saving ? 'Saving...' : 'Save Services'}
+          </button>
+        </div>
+      </form>
+    </div>
   )
 }
 
@@ -678,41 +613,31 @@ function TestimonialsEditor({ data, onSave, saving }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="admin-form">
-      <div className="admin-section-header">
-        <h3>Testimonials</h3>
-        <motion.button
-          type="button"
-          className="admin-btn admin-btn--secondary"
-          onClick={addTestimonial}
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          Add Testimonial
-        </motion.button>
+    <div className="admin-section">
+      <div className="admin-section__header">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h2>Testimonials</h2>
+            <p>Manage client testimonials</p>
+          </div>
+          <button type="button" className="admin-btn admin-btn--secondary" onClick={addTestimonial}>
+            + Add Testimonial
+          </button>
+        </div>
       </div>
+      <form onSubmit={handleSubmit}>
 
       {testimonials.map((testimonial, index) => (
-        <motion.div
-          key={testimonial.id}
-          className="admin-card"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ delay: index * 0.1, duration: 0.3 }}
-          layout
-        >
+        <div key={testimonial.id} className="admin-card">
           <div className="admin-card__header">
             <h4>Testimonial {index + 1}</h4>
-            <motion.button
+            <button
               type="button"
               className="admin-btn admin-btn--danger admin-btn--small"
               onClick={() => removeTestimonial(index)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
             >
               Remove
-            </motion.button>
+            </button>
           </div>
 
           <div className="admin-grid">
@@ -767,43 +692,20 @@ function TestimonialsEditor({ data, onSave, saving }) {
           </div>
 
           {testimonial.image && (
-            <motion.div
-              className="admin-image-preview"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3 }}
-            >
+            <div className="admin-image-preview">
               <img src={testimonial.image} alt={testimonial.name} />
-            </motion.div>
+            </div>
           )}
-        </motion.div>
+        </div>
       ))}
 
-      <div className="admin-actions">
-        <motion.button
-          type="submit"
-          className="admin-btn admin-btn--primary"
-          disabled={saving}
-          whileHover={!saving ? { scale: 1.02, y: -2 } : {}}
-          whileTap={!saving ? { scale: 0.98 } : {}}
-        >
-          {saving ? (
-            <>
-              <motion.span
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                style={{ display: 'inline-block' }}
-              >
-                ⏳
-              </motion.span>
-              Saving...
-            </>
-          ) : (
-            'Save Testimonials'
-          )}
-        </motion.button>
-      </div>
-    </form>
+        <div className="admin-actions">
+          <button type="submit" className="admin-btn admin-btn--primary" disabled={saving}>
+            {saving ? 'Saving...' : 'Save Testimonials'}
+          </button>
+        </div>
+      </form>
+    </div>
   )
 }
 
@@ -855,41 +757,31 @@ function CollaboratorsEditor({ data, onSave, saving }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="admin-form">
-      <div className="admin-section-header">
-        <h3>Team Members</h3>
-        <motion.button
-          type="button"
-          className="admin-btn admin-btn--secondary"
-          onClick={addCollaborator}
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          Add Member
-        </motion.button>
+    <div className="admin-section">
+      <div className="admin-section__header">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h2>Team Members</h2>
+            <p>Manage your team and collaborators</p>
+          </div>
+          <button type="button" className="admin-btn admin-btn--secondary" onClick={addCollaborator}>
+            + Add Member
+          </button>
+        </div>
       </div>
+      <form onSubmit={handleSubmit}>
 
       {collaborators.map((collaborator, index) => (
-        <motion.div
-          key={collaborator.id}
-          className="admin-card"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ delay: index * 0.1, duration: 0.3 }}
-          layout
-        >
+        <div key={collaborator.id} className="admin-card">
           <div className="admin-card__header">
             <h4>Member {index + 1}</h4>
-            <motion.button
+            <button
               type="button"
               className="admin-btn admin-btn--danger admin-btn--small"
               onClick={() => removeCollaborator(index)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
             >
               Remove
-            </motion.button>
+            </button>
           </div>
 
           <div className="admin-grid">
@@ -960,43 +852,20 @@ function CollaboratorsEditor({ data, onSave, saving }) {
           </div>
 
           {collaborator.image && (
-            <motion.div
-              className="admin-image-preview"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3 }}
-            >
+            <div className="admin-image-preview">
               <img src={collaborator.image} alt={collaborator.name} />
-            </motion.div>
+            </div>
           )}
-        </motion.div>
+        </div>
       ))}
 
-      <div className="admin-actions">
-        <motion.button
-          type="submit"
-          className="admin-btn admin-btn--primary"
-          disabled={saving}
-          whileHover={!saving ? { scale: 1.02, y: -2 } : {}}
-          whileTap={!saving ? { scale: 0.98 } : {}}
-        >
-          {saving ? (
-            <>
-              <motion.span
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                style={{ display: 'inline-block' }}
-              >
-                ⏳
-              </motion.span>
-              Saving...
-            </>
-          ) : (
-            'Save Team Members'
-          )}
-        </motion.button>
-      </div>
-    </form>
+        <div className="admin-actions">
+          <button type="submit" className="admin-btn admin-btn--primary" disabled={saving}>
+            {saving ? 'Saving...' : 'Save Team Members'}
+          </button>
+        </div>
+      </form>
+    </div>
   )
 }
 
@@ -1019,9 +888,17 @@ function PhotosEditor({ data, onSave, saving }) {
   }
 
   const updatePhoto = (index, field, value) => {
-    setPhotos(prev => prev.map((photo, i) =>
-      i === index ? { ...photo, [field]: value } : photo
-    ))
+    setPhotos(prev => prev.map((photo, i) => {
+      if (i === index) {
+        const updated = { ...photo, [field]: value }
+        // Auto-convert Google Drive links when pasted
+        if (field === 'src' && value.includes('drive.google.com')) {
+          updated.src = convertGoogleDriveLink(value)
+        }
+        return updated
+      }
+      return photo
+    }))
   }
 
   const removePhoto = (index) => {
@@ -1034,101 +911,116 @@ function PhotosEditor({ data, onSave, saving }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="admin-form">
-      <div className="admin-section-header">
-        <h3>Portfolio Photos</h3>
-        <motion.button
-          type="button"
-          className="admin-btn admin-btn--secondary"
-          onClick={addPhoto}
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          Add Photo
-        </motion.button>
+    <div className="admin-section">
+      <div className="admin-section__header">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h2>Portfolio Photos</h2>
+            <p>Add photos by pasting Google Drive links or direct image URLs</p>
+          </div>
+          <button type="button" className="admin-btn admin-btn--secondary" onClick={addPhoto}>
+            + Add Photo
+          </button>
+        </div>
       </div>
 
-      <div className="admin-photos-grid">
-        {photos.map((photo, index) => (
-          <motion.div
-            key={photo.id}
-            className="admin-photo-card"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ delay: index * 0.05, duration: 0.3 }}
-            layout
-          >
-            {photo.src && <img src={photo.src} alt={photo.title} />}
+      {photos.length === 0 ? (
+        <div className="admin-empty">
+          <span>📷</span>
+          <p>No photos yet. Click "Add Photo" to get started.</p>
+        </div>
+      ) : (
+        <div className="admin-photos-list">
+          {photos.map((photo, index) => (
+            <div key={photo.id} className="admin-photo-item">
+              <div className="admin-photo-item__preview">
+                {photo.src ? (
+                  <img src={photo.src} alt={photo.title || 'Photo'} onError={(e) => {
+                    e.target.style.display = 'none'
+                    e.target.nextSibling.style.display = 'flex'
+                  }} />
+                  <div className="admin-photo-item__error" style={{ display: 'none' }}>
+                    <span>⚠️</span>
+                    <p>Image failed to load</p>
+                  </div>
+                ) : (
+                  <div className="admin-photo-item__placeholder">
+                    <span>📷</span>
+                    <p>No image</p>
+                  </div>
+                )}
+              </div>
 
-            <div className="admin-photo-card__content">
-              <input
-                type="text"
-                placeholder="Title"
-                value={photo.title}
-                onChange={(e) => updatePhoto(index, 'title', e.target.value)}
-              />
+              <div className="admin-photo-item__form">
+                <div className="admin-grid">
+                  <div className="admin-input-group">
+                    <label>Title</label>
+                    <input
+                      type="text"
+                      value={photo.title}
+                      onChange={(e) => updatePhoto(index, 'title', e.target.value)}
+                      placeholder="Photo title"
+                    />
+                  </div>
 
-              <input
-                type="text"
-                placeholder="Category"
-                value={photo.category}
-                onChange={(e) => updatePhoto(index, 'category', e.target.value)}
-              />
+                  <div className="admin-input-group">
+                    <label>Category</label>
+                    <input
+                      type="text"
+                      value={photo.category}
+                      onChange={(e) => updatePhoto(index, 'category', e.target.value)}
+                      placeholder="e.g., Wedding, Portrait"
+                    />
+                  </div>
 
-              <input
-                type="url"
-                placeholder="Image URL"
-                value={photo.src}
-                onChange={(e) => updatePhoto(index, 'src', e.target.value)}
-              />
+                  <div className="admin-input-group admin-input-group--full">
+                    <label>Google Drive Link or Image URL</label>
+                    <input
+                      type="url"
+                      value={photo.src}
+                      onChange={(e) => updatePhoto(index, 'src', e.target.value)}
+                      placeholder="Paste Google Drive link or image URL"
+                    />
+                    <small style={{ color: 'var(--admin-text-muted)', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+                      Paste your Google Drive sharing link - it will be converted automatically
+                    </small>
+                  </div>
 
-              <textarea
-                placeholder="Description"
-                value={photo.description}
-                onChange={(e) => updatePhoto(index, 'description', e.target.value)}
-                rows={2}
-              />
+                  <div className="admin-input-group admin-input-group--full">
+                    <label>Description (Optional)</label>
+                    <textarea
+                      value={photo.description}
+                      onChange={(e) => updatePhoto(index, 'description', e.target.value)}
+                      rows={3}
+                      placeholder="Photo description"
+                    />
+                  </div>
+                </div>
 
-              <motion.button
-                type="button"
-                className="admin-btn admin-btn--danger admin-btn--small"
-                onClick={() => removePhoto(index)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Remove
-              </motion.button>
+                <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
+                  <button
+                    type="button"
+                    className="admin-btn admin-btn--danger admin-btn--small"
+                    onClick={() => removePhoto(index)}
+                  >
+                    Remove Photo
+                  </button>
+                </div>
+              </div>
             </div>
-          </motion.div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       <div className="admin-actions">
-        <motion.button
-          type="submit"
-          className="admin-btn admin-btn--primary"
-          disabled={saving}
-          whileHover={!saving ? { scale: 1.02, y: -2 } : {}}
-          whileTap={!saving ? { scale: 0.98 } : {}}
-        >
-          {saving ? (
-            <>
-              <motion.span
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                style={{ display: 'inline-block' }}
-              >
-                ⏳
-              </motion.span>
-              Saving...
-            </>
-          ) : (
-            'Save Photos'
-          )}
-        </motion.button>
+        <button type="button" className="admin-btn admin-btn--secondary" onClick={() => setPhotos([])}>
+          Clear All
+        </button>
+        <button type="button" className="admin-btn admin-btn--primary" onClick={handleSubmit} disabled={saving}>
+          {saving ? 'Saving...' : 'Save Photos'}
+        </button>
       </div>
-    </form>
+    </div>
   )
 }
 
@@ -1157,49 +1049,38 @@ function SocialEditor({ data, onSave, saving }) {
   ]
 
   return (
-    <form onSubmit={handleSubmit} className="admin-form">
-      <div className="admin-grid">
-        {platforms.map(platform => (
-          <div key={platform.key} className="admin-input-group">
-            <label>
-              <span>{platform.icon}</span>
-              {platform.label}
-            </label>
-            <input
-              type="url"
-              value={social[platform.key] || ''}
-              onChange={(e) => setSocial(prev => ({ ...prev, [platform.key]: e.target.value }))}
-              placeholder={`https://${platform.key}.com/...`}
-            />
-          </div>
-        ))}
+    <div className="admin-section">
+      <div className="admin-section__header">
+        <div>
+          <h2>Social Media Links</h2>
+          <p>Add your social media profiles</p>
+        </div>
       </div>
+      <form onSubmit={handleSubmit}>
+        <div className="admin-grid">
+          {platforms.map(platform => (
+            <div key={platform.key} className="admin-input-group">
+              <label>
+                <span>{platform.icon}</span>
+                {platform.label}
+              </label>
+              <input
+                type="url"
+                value={social[platform.key] || ''}
+                onChange={(e) => setSocial(prev => ({ ...prev, [platform.key]: e.target.value }))}
+                placeholder={`https://${platform.key}.com/...`}
+              />
+            </div>
+          ))}
+        </div>
 
-      <div className="admin-actions">
-        <motion.button
-          type="submit"
-          className="admin-btn admin-btn--primary"
-          disabled={saving}
-          whileHover={!saving ? { scale: 1.02, y: -2 } : {}}
-          whileTap={!saving ? { scale: 0.98 } : {}}
-        >
-          {saving ? (
-            <>
-              <motion.span
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                style={{ display: 'inline-block' }}
-              >
-                ⏳
-              </motion.span>
-              Saving...
-            </>
-          ) : (
-            'Save Social Links'
-          )}
-        </motion.button>
-      </div>
-    </form>
+        <div className="admin-actions">
+          <button type="submit" className="admin-btn admin-btn--primary" disabled={saving}>
+            {saving ? 'Saving...' : 'Save Social Links'}
+          </button>
+        </div>
+      </form>
+    </div>
   )
 }
 
@@ -1211,49 +1092,50 @@ function ContactEditor({ data, onSave, saving }) {
 // Messages Viewer Component
 function MessagesViewer({ data }) {
   return (
-    <div className="admin-messages">
-      {data?.length === 0 ? (
-        <div className="admin-empty">
-          <span>📭</span>
-          <p>No contact messages yet</p>
+    <div className="admin-section">
+      <div className="admin-section__header">
+        <div>
+          <h2>Contact Messages</h2>
+          <p>View and manage contact form submissions</p>
         </div>
-      ) : (
-        data?.map((contact, index) => (
-          <motion.div
-            key={contact.id}
-            className="admin-message-card"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: index * 0.1, duration: 0.4 }}
-            whileHover={{ x: 4 }}
-          >
-            <div className="admin-message__header">
-              <div className="admin-message__info">
-                <h3>{contact.name}</h3>
-                <p>{contact.email}</p>
-                {contact.phone && <p>{contact.phone}</p>}
+      </div>
+      <div className="admin-messages">
+        {data?.length === 0 ? (
+          <div className="admin-empty">
+            <span>📭</span>
+            <p>No contact messages yet</p>
+          </div>
+        ) : (
+          data?.map(contact => (
+            <div key={contact.id} className="admin-message-card">
+              <div className="admin-message__header">
+                <div className="admin-message__info">
+                  <h3>{contact.name}</h3>
+                  <p>{contact.email}</p>
+                  {contact.phone && <p>{contact.phone}</p>}
+                </div>
+                <div className="admin-message__meta">
+                  <span className={`admin-status admin-status--${contact.status || 'new'}`}>
+                    {contact.status || 'New'}
+                  </span>
+                  <time>{new Date(contact.submittedAt).toLocaleString()}</time>
+                </div>
               </div>
-              <div className="admin-message__meta">
-                <span className={`admin-status admin-status--${contact.status || 'new'}`}>
-                  {contact.status || 'New'}
-                </span>
-                <time>{new Date(contact.submittedAt).toLocaleString()}</time>
+
+              {contact.service && (
+                <div className="admin-message__service">
+                  <strong>Service:</strong> {contact.service}
+                </div>
+              )}
+
+              <div className="admin-message__content">
+                <strong>Message:</strong>
+                <p>{contact.message}</p>
               </div>
             </div>
-
-            {contact.service && (
-              <div className="admin-message__service">
-                <strong>Service:</strong> {contact.service}
-              </div>
-            )}
-
-            <div className="admin-message__content">
-              <strong>Message:</strong>
-              <p>{contact.message}</p>
-            </div>
-          </motion.div>
-        ))
-      )}
+          ))
+        )}
+      </div>
     </div>
   )
 }
@@ -1261,62 +1143,59 @@ function MessagesViewer({ data }) {
 // Comments Manager Component
 function CommentsManager({ data, onApprove, onDelete }) {
   return (
-    <div className="admin-comments">
-      {data?.length === 0 ? (
-        <div className="admin-empty">
-          <span>💭</span>
-          <p>No comments yet</p>
+    <div className="admin-section">
+      <div className="admin-section__header">
+        <div>
+          <h2>Photo Comments</h2>
+          <p>Manage comments on portfolio photos</p>
         </div>
-      ) : (
-        data?.map((comment, index) => (
-          <motion.div
-            key={comment.id}
-            className="admin-comment-card"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: index * 0.1, duration: 0.4 }}
-            whileHover={{ x: 4 }}
-          >
-            <div className="admin-comment__header">
-              <div className="admin-comment__info">
-                <h4>{comment.name}</h4>
-                <p>{comment.email}</p>
-                <small>Photo ID: {comment.photoId}</small>
+      </div>
+      <div className="admin-comments">
+        {data?.length === 0 ? (
+          <div className="admin-empty">
+            <span>💭</span>
+            <p>No comments yet</p>
+          </div>
+        ) : (
+          data?.map(comment => (
+            <div key={comment.id} className="admin-comment-card">
+              <div className="admin-comment__header">
+                <div className="admin-comment__info">
+                  <h4>{comment.name}</h4>
+                  <p>{comment.email}</p>
+                  <small>Photo ID: {comment.photoId}</small>
+                </div>
+                <div className="admin-comment__status">
+                  <span className={`admin-status ${comment.approved ? 'admin-status--approved' : 'admin-status--pending'}`}>
+                    {comment.approved ? 'Approved' : 'Pending'}
+                  </span>
+                </div>
               </div>
-              <div className="admin-comment__status">
-                <span className={`admin-status ${comment.approved ? 'admin-status--approved' : 'admin-status--pending'}`}>
-                  {comment.approved ? 'Approved' : 'Pending'}
-                </span>
+
+              <div className="admin-comment__content">
+                <p>{comment.comment}</p>
               </div>
-            </div>
 
-            <div className="admin-comment__content">
-              <p>{comment.comment}</p>
-            </div>
-
-            <div className="admin-comment__actions">
-              {!comment.approved && (
-                <motion.button
-                  className="admin-btn admin-btn--success admin-btn--small"
-                  onClick={() => onApprove(comment.id)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+              <div className="admin-comment__actions">
+                {!comment.approved && (
+                  <button
+                    className="admin-btn admin-btn--success admin-btn--small"
+                    onClick={() => onApprove(comment.id)}
+                  >
+                    Approve
+                  </button>
+                )}
+                <button
+                  className="admin-btn admin-btn--danger admin-btn--small"
+                  onClick={() => onDelete(comment.id)}
                 >
-                  Approve
-                </motion.button>
-              )}
-              <motion.button
-                className="admin-btn admin-btn--danger admin-btn--small"
-                onClick={() => onDelete(comment.id)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Delete
-              </motion.button>
+                  Delete
+                </button>
+              </div>
             </div>
-          </motion.div>
-        ))
-      )}
+          ))
+        )}
+      </div>
     </div>
   )
 }
@@ -1456,25 +1335,10 @@ function Dashboard({ token, onLogout }) {
 
   if (loading) {
     return (
-      <motion.div 
-        className="admin-loading"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      >
-        <motion.div 
-          className="admin-loading__spinner"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-        />
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-        >
-          Loading admin panel...
-        </motion.p>
-      </motion.div>
+      <div className="admin-loading">
+        <div className="admin-loading__spinner"></div>
+        <p>Loading admin panel...</p>
+      </div>
     )
   }
 
@@ -1483,23 +1347,20 @@ function Dashboard({ token, onLogout }) {
       {/* Sidebar */}
       <aside className="admin-sidebar">
         <div className="admin-sidebar__header">
-          <span className="admin-sidebar__icon">◈</span>
+          <img src="/camlogo.png" alt="Fused Lens Studio" className="admin-sidebar__icon" />
           <span>Fused Lens</span>
         </div>
 
         <nav className="admin-nav">
           {tabs.map(tab => (
-            <motion.button
+            <button
               key={tab.id}
               className={`admin-nav__item ${activeTab === tab.id ? 'admin-nav__item--active' : ''}`}
               onClick={() => setActiveTab(tab.id)}
-              whileHover={{ x: 4 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
             >
               <span>{tab.icon}</span>
               {tab.label}
-            </motion.button>
+            </button>
           ))}
         </nav>
 
@@ -1516,224 +1377,116 @@ function Dashboard({ token, onLogout }) {
 
         <div className="admin-content">
           {/* Message */}
-          <AnimatePresence mode="wait">
+          <AnimatePresence>
             {message && (
               <motion.div
                 className={`admin-message admin-message--${message.type}`}
-                initial={{ opacity: 0, y: -20, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
               >
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
-                >
-                  {message.type === 'success' ? '✓' : '✕'}
-                </motion.span>
                 {message.text}
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Tab Content with Smooth Transitions */}
-          <AnimatePresence mode="wait">
-            {activeTab === 'overview' && (
-              <motion.div
-                key="overview"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <Overview data={data} />
-              </motion.div>
-            )}
+          {/* Overview Tab */}
+          {activeTab === 'overview' && <Overview data={data} />}
 
-            {/* Studio Info Tab */}
-            {activeTab === 'studio' && data.content && (
-              <motion.div
-                key="studio"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <StudioEditor
-                  data={data.content.studio}
-                  onSave={(studioData) => saveSection('Studio Info', '/content/studio', studioData)}
-                  saving={saving}
-                />
-              </motion.div>
-            )}
+          {/* Studio Info Tab */}
+          {activeTab === 'studio' && data.content && (
+            <StudioEditor
+              data={data.content.studio}
+              onSave={(studioData) => saveSection('Studio Info', '/content/studio', studioData)}
+              saving={saving}
+            />
+          )}
 
-            {/* Hero Section Tab */}
-            {activeTab === 'hero' && data.content && (
-              <motion.div
-                key="hero"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <HeroEditor
-                  data={data.content.heroSlides}
-                  onSave={(slides) => saveSection('Hero', '/content/hero', { slides })}
-                  saving={saving}
-                />
-              </motion.div>
-            )}
+          {/* Hero Section Tab */}
+          {activeTab === 'hero' && data.content && (
+            <HeroEditor
+              data={data.content.heroSlides}
+              onSave={(slides) => saveSection('Hero', '/content/hero', { slides })}
+              saving={saving}
+            />
+          )}
 
-            {/* About Tab */}
-            {activeTab === 'about' && data.about && (
-              <motion.div
-                key="about"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <AboutEditor
-                  data={data.about}
-                  onSave={(aboutData) => saveSection('About', '/content/about', { about: aboutData })}
-                  saving={saving}
-                />
-              </motion.div>
-            )}
+          {/* About Tab */}
+          {activeTab === 'about' && data.about && (
+            <AboutEditor
+              data={data.about}
+              onSave={(aboutData) => saveSection('About', '/content/about', { about: aboutData })}
+              saving={saving}
+            />
+          )}
 
-            {/* Services Tab */}
-            {activeTab === 'services' && data.content && (
-              <motion.div
-                key="services"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <ServicesEditor
-                  data={data.content.services}
-                  onSave={(services) => saveSection('Services', '/content/services', { services })}
-                  saving={saving}
-                />
-              </motion.div>
-            )}
+          {/* Services Tab */}
+          {activeTab === 'services' && data.content && (
+            <ServicesEditor
+              data={data.content.services}
+              onSave={(services) => saveSection('Services', '/content/services', { services })}
+              saving={saving}
+            />
+          )}
 
-            {/* Testimonials Tab */}
-            {activeTab === 'testimonials' && data.testimonials && (
-              <motion.div
-                key="testimonials"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <TestimonialsEditor
-                  data={data.testimonials}
-                  onSave={(testimonials) => saveSection('Testimonials', '/content/testimonials', { testimonials })}
-                  saving={saving}
-                />
-              </motion.div>
-            )}
+          {/* Testimonials Tab */}
+          {activeTab === 'testimonials' && data.testimonials && (
+            <TestimonialsEditor
+              data={data.testimonials}
+              onSave={(testimonials) => saveSection('Testimonials', '/content/testimonials', { testimonials })}
+              saving={saving}
+            />
+          )}
 
-            {/* Collaborators Tab */}
-            {activeTab === 'collaborators' && data.collaborators && (
-              <motion.div
-                key="collaborators"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <CollaboratorsEditor
-                  data={data.collaborators}
-                  onSave={(collaborators) => saveSection('Collaborators', '/content/collaborators', { collaborators })}
-                  saving={saving}
-                />
-              </motion.div>
-            )}
+          {/* Collaborators Tab */}
+          {activeTab === 'collaborators' && data.collaborators && (
+            <CollaboratorsEditor
+              data={data.collaborators}
+              onSave={(collaborators) => saveSection('Collaborators', '/content/collaborators', { collaborators })}
+              saving={saving}
+            />
+          )}
 
-            {/* Photos Tab */}
-            {activeTab === 'photos' && data.photos && (
-              <motion.div
-                key="photos"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <PhotosEditor
-                  data={data.photos.photos}
-                  onSave={(photos) => saveSection('Photos', '/photos', { photos })}
-                  saving={saving}
-                />
-              </motion.div>
-            )}
+          {/* Photos Tab */}
+          {activeTab === 'photos' && data.photos && (
+            <PhotosEditor
+              data={data.photos.photos}
+              onSave={(photos) => saveSection('Photos', '/photos', { photos })}
+              saving={saving}
+            />
+          )}
 
-            {/* Social Links Tab */}
-            {activeTab === 'social' && data.content && (
-              <motion.div
-                key="social"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <SocialEditor
-                  data={data.content.social}
-                  onSave={(social) => saveSection('Social Links', '/content/social', social)}
-                  saving={saving}
-                />
-              </motion.div>
-            )}
+          {/* Social Links Tab */}
+          {activeTab === 'social' && data.content && (
+            <SocialEditor
+              data={data.content.social}
+              onSave={(social) => saveSection('Social Links', '/content/social', social)}
+              saving={saving}
+            />
+          )}
 
-            {/* Contact Info Tab */}
-            {activeTab === 'contact' && data.content && (
-              <motion.div
-                key="contact"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <ContactEditor
-                  data={data.content.studio}
-                  onSave={(studioData) => saveSection('Contact Info', '/content/studio', studioData)}
-                  saving={saving}
-                />
-              </motion.div>
-            )}
+          {/* Contact Info Tab */}
+          {activeTab === 'contact' && data.content && (
+            <ContactEditor
+              data={data.content.studio}
+              onSave={(studioData) => saveSection('Contact Info', '/content/studio', studioData)}
+              saving={saving}
+            />
+          )}
 
-            {/* Messages Tab */}
-            {activeTab === 'messages' && data.contacts && (
-              <motion.div
-                key="messages"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <MessagesViewer data={data.contacts} />
-              </motion.div>
-            )}
+          {/* Messages Tab */}
+          {activeTab === 'messages' && data.contacts && (
+            <MessagesViewer data={data.contacts} />
+          )}
 
-            {/* Comments Tab */}
-            {activeTab === 'comments' && data.comments && (
-              <motion.div
-                key="comments"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <CommentsManager
-                  data={data.comments}
-                  onApprove={handleApproveComment}
-                  onDelete={handleDeleteComment}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {/* Comments Tab */}
+          {activeTab === 'comments' && data.comments && (
+            <CommentsManager
+              data={data.comments}
+              onApprove={handleApproveComment}
+              onDelete={handleDeleteComment}
+            />
+          )}
         </div>
       </main>
     </div>

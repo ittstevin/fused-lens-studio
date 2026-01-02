@@ -46,11 +46,19 @@
   font-weight: 400;
   letter-spacing: 0.05em;
   z-index: 10;
+  text-decoration: none;
 }
 
-.nav__logo-icon {
-  font-size: 1.5rem;
-  color: var(--color-accent);
+.nav__logo-image {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  transition: transform var(--transition-smooth);
+}
+
+.nav__logo:hover .nav__logo-image {
+  transform: scale(1.05);
 }
 
 .nav__logo-text {
@@ -60,6 +68,10 @@
 @media (min-width: 768px) {
   .nav__logo-text {
     display: inline;
+  }
+  
+  .nav__logo-image {
+    height: 45px;
   }
 }
 

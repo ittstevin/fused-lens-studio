@@ -1,42 +1,9 @@
 import { motion } from 'framer-motion'
-import { useState, useEffect } from 'react'
-import { navLinks } from '../../data/content'
+import { studioInfo, navLinks } from '../../data/content'
 import './Footer.css'
-
-import { studioInfo as defaultStudioInfo } from '../../data/content'
-
-const API_URL = import.meta.env.DEV ? '/api' : 'http://localhost:3001/api'
 
 export function Footer() {
   const currentYear = new Date().getFullYear()
-  const [studioInfo, setStudioInfo] = useState({
-    name: defaultStudioInfo.name,
-    tagline: defaultStudioInfo.tagline,
-    location: defaultStudioInfo.location,
-    email: defaultStudioInfo.email,
-    phone: defaultStudioInfo.phone,
-    social: defaultStudioInfo.social
-  })
-
-  useEffect(() => {
-    // Try to fetch updated studio info from API
-    fetch(`${API_URL}/content/studio`)
-      .then(res => res.ok ? res.json() : null)
-      .catch(() => null)
-      .then(data => {
-        if (data) {
-          setStudioInfo({
-            name: data.name || defaultStudioInfo.name,
-            tagline: data.tagline || defaultStudioInfo.tagline,
-            location: data.location || defaultStudioInfo.location,
-            email: data.email || defaultStudioInfo.email,
-            phone: data.phone || defaultStudioInfo.phone,
-            social: data.social || defaultStudioInfo.social
-          })
-        }
-      })
-      .catch(err => console.error('Failed to load studio info:', err))
-  }, [])
 
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId)
@@ -60,7 +27,11 @@ export function Footer() {
               }}
               whileHover={{ scale: 1.02 }}
             >
-              <span className="footer__logo-icon">◈</span>
+              <img 
+                src="/camlogo.png" 
+                alt={studioInfo.name}
+                className="footer__logo-image"
+              />
               <span className="footer__logo-text">{studioInfo.name}</span>
             </motion.a>
             <p className="footer__tagline">{studioInfo.tagline}</p>
